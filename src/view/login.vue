@@ -1,36 +1,43 @@
 <template>
-  <div id="login-wrapper">
-    <div id="logo">
+  <div class="login-wrapper">
+    <div class="logo">
       <img src="../assets/logo.png">
     </div>
-    <el-form :model="loginForm" ref="loginForm" label-width="60px">
+    <el-form :model="loginForm" ref="loginForm">
       <el-form-item 
-        label="账号"
         prop="account"
         :rules="[
           {required: true, message: '账号不能为空'}
         ]"
       >
-        <el-input type="text" v-model="loginForm.account"></el-input>
+        <el-input type="text" 
+          v-model="loginForm.account"
+          placeholder="请输入账号"
+          prefix-icon="iconfont el-icon-account">
+        </el-input>
       </el-form-item>
       <el-form-item 
-        label="密码"
         prop="password"
         :rules="[
           {required: true, message: '密码不能为空'}
         ]"
       >
-        <el-input type="password" v-model="loginForm.password"></el-input>
+        <el-input type="password" 
+          v-model="loginForm.password"
+          placeholder="请输入密码"
+          prefix-icon="iconfont el-icon-password">
+        </el-input>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="submitForm('loginForm')">提交</el-button>
-        <el-button @click="resetForm('loginForm')">重置</el-button>
+        <el-button class="submit" type="primary" @click="submitForm('loginForm')">登录</el-button>
       </el-form-item>
     </el-form>
   </div>
 </template>
 
 <script>
+  import {login} from '../api/login'
+
   export default {
     data () {
       return {
@@ -44,9 +51,9 @@
       submitForm (formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            alert('submit!')
+            login()
           } else {
-            console.log('error submit!!')
+            console.log('登录表单校验不通过！')
             return false
           }
         })
@@ -59,13 +66,20 @@
 </script>
 
 <style scoped>
-#login-wrapper{
+.login-wrapper{
   width: 400px;
-  margin: 0 auto;
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
 }
 
-#logo{
+.logo{
+  padding: 20px;
   text-align: center;
 }
-</style>
 
+.submit{
+  width: 100%;
+}
+</style>
