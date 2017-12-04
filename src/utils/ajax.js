@@ -2,8 +2,19 @@ import axios from 'axios'
 
 // 创建axios实例
 const service = axios.create({
-  baseURL: process.env.BASE_API,     // api的base_url
-  timeout: 60000                     // 请求超时时间
+  baseURL: process.env.BASE_API,
+  timeout: 60000,
+  // axios默认原生ajax请求request payload，贼难解析，通过修改content-type，并且转换data达到要求
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded'
+  },
+  transformRequest: [data => {
+    let result = ''
+    for (let it in data) {
+      result += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
+    }
+    return result.substr(0, result.length - 1)
+  }]
 })
 
 // request拦截器

@@ -40,8 +40,8 @@
 
   function login (user) {
     return ajax({
-      url: '/session',
       method: 'post',
+      url: '/session',
       data: user
     })
   }
