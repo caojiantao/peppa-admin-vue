@@ -3,7 +3,7 @@
     <div class="logo">
       <img src="../assets/logo.png">
     </div>
-    <el-form :model="loginForm" ref="loginForm">
+    <el-form :model="user" ref="user">
       <el-form-item 
         prop="account"
         :rules="[
@@ -11,7 +11,7 @@
         ]"
       >
         <el-input type="text" 
-          v-model="loginForm.account"
+          v-model="user.account"
           placeholder="请输入账号"
           prefix-icon="iconfont el-icon-account">
         </el-input>
@@ -23,25 +23,34 @@
         ]"
       >
         <el-input type="password" 
-          v-model="loginForm.password"
+          v-model="user.password"
           placeholder="请输入密码"
           prefix-icon="iconfont el-icon-password">
         </el-input>
       </el-form-item>
       <el-form-item>
-        <el-button class="submit" type="primary" @click="submitForm('loginForm')">登录</el-button>
+        <el-button class="submit" type="primary" @click="submitForm('user')">登录</el-button>
       </el-form-item>
     </el-form>
   </div>
 </template>
 
 <script>
-  import {login} from '../api/login'
+  import ajax from '@/utils/ajax'
+
+  function login (user) {
+    return ajax({
+      url: '/session',
+      method: 'post',
+      data: user
+    })
+  }
 
   export default {
     data () {
       return {
-        loginForm: {
+        // 登录人
+        user: {
           account: '',
           password: ''
         }
@@ -51,7 +60,10 @@
       submitForm (formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            login()
+            let promise = login(this.user)
+            promise.then(value => {
+              console.log(value)
+            })
           } else {
             console.log('登录表单校验不通过！')
             return false
@@ -66,20 +78,20 @@
 </script>
 
 <style scoped>
-.login-wrapper{
-  width: 400px;
-  position: fixed;
-  left: 50%;
-  top: 50%;
-  transform: translateX(-50%) translateY(-50%);
-}
+  .login-wrapper{
+    width: 400px;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translateX(-50%) translateY(-55%);
+  }
 
-.logo{
-  padding: 20px;
-  text-align: center;
-}
+  .logo{
+    padding: 20px;
+    text-align: center;
+  }
 
-.submit{
-  width: 100%;
-}
+  .submit{
+    width: 100%;
+  }
 </style>

@@ -1,3 +1,5 @@
+import { triggerAsyncId } from 'async_hooks';
+
 'use strict'
 // Template version: 1.2.1
 // see http://vuejs-templates.github.io/webpack for documentation.
@@ -10,7 +12,12 @@ module.exports = {
     // Paths
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    proxyTable: {},
+    proxyTable: {
+      'session': {
+        target: 'http://localhost:80/session',
+        changeOrigin: true
+      }
+    },
 
     // Various Dev Server settings
     host: 'localhost', // can be overwritten by process.env.HOST

@@ -1,10 +1,8 @@
-import axio from 'axios'
+import ajax from '@/utils/ajax'
 
 export function login () {
-  axio.get('http://caojiantao.com')
-  .then(function (response) {
-    console.log(response)
-  }).catch(function (error) {
-    console.log(error)
+  ajax({
+    url: 'http://jspang.com/DemoApi/oftenGoods.php',
+    method: 'GET'
   })
 }
