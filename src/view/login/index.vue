@@ -1,27 +1,17 @@
 <template>
   <div class="login-wrapper">
     <div class="logo">
-      <img src="../assets/logo.png">
+      <img src="../../assets/logo.png">
     </div>
-    <el-form :model="user" ref="user">
-      <el-form-item 
-        prop="account"
-        :rules="[
-          {required: true, message: '账号不能为空'}
-        ]"
-      >
+    <el-form :model="user" ref="user" :rules="rules">
+      <el-form-item prop="account">
         <el-input type="text" 
           v-model="user.account"
           placeholder="请输入账号"
           prefix-icon="iconfont el-icon-account">
         </el-input>
       </el-form-item>
-      <el-form-item 
-        prop="password"
-        :rules="[
-          {required: true, message: '密码不能为空'}
-        ]"
-      >
+      <el-form-item prop="password">
         <el-input type="password" 
           v-model="user.password"
           placeholder="请输入密码"
@@ -48,11 +38,30 @@
 
   export default {
     data () {
+      const valAcc = (rule, value, callback) => {
+        if (value.length === 0) {
+          callback(new Error('请输入账号'))
+        } else {
+          callback()
+        }
+      }
+      const valPass = (rule, value, callback) => {
+        if (value.length === 0) {
+          callback(new Error('请输入密码'))
+        } else {
+          callback()
+        }
+      }
+
       return {
         // 登录人
         user: {
           account: '',
           password: ''
+        },
+        rules: {
+          account: [{required: true, validator: valAcc}],
+          password: [{required: true, validator: valPass}]
         }
       }
     },
@@ -61,8 +70,19 @@
         this.$refs[formName].validate((valid) => {
           if (valid) {
             let promise = login(this.user)
-            promise.then(value => {
-              console.log(value)
+            promise.then(response => {
+              let result = response.data
+              if (result.data) {
+                this.$message({
+                  message: result.desc,
+                  type: 'success'
+                })
+              } else {
+                this.$message({
+                  message: result.desc,
+                  type: 'error'
+                })
+              }
             })
           } else {
             console.log('登录表单校验不通过！')
