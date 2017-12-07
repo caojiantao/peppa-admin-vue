@@ -19,6 +19,7 @@ const service = axios.create({
 
 // request拦截器
 service.interceptors.request.use(config => {
+  config.headers['X-Token'] = window.localStorage.getItem('token')
   return config
 }, error => {
   console.log(error)
@@ -30,7 +31,11 @@ service.interceptors.response.use(
     return response
   },
   error => {
-    console.log(error)
+    // 统一api异常处理，记得抛出error，让各自的promise处理
+    if (error.response.status === 401) {
+      window.localStorage.clear()
+    }
+    throw error
   }
 )
 

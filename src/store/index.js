@@ -5,7 +5,14 @@ Vue.use(Vuex)
 
 const store = new Vuex.Store({
   state: {
-    show: false
+    // 不用登录拦截地址列表
+    excludeCheckLoginPaths: ['/login'],
+    user: {}
+  },
+  mutations: {
+    updateUser (state, user) {
+      state.user = user
+    }
   }
 })
 

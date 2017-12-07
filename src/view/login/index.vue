@@ -70,19 +70,19 @@
         this.$refs[formName].validate((valid) => {
           if (valid) {
             let promise = login(this.user)
-            promise.then(response => {
-              let result = response.data
-              if (result.data) {
-                this.$message({
-                  message: result.desc,
-                  type: 'success'
-                })
-              } else {
-                this.$message({
-                  message: result.desc,
-                  type: 'error'
-                })
-              }
+            promise.then(value => {
+              let data = value.data
+              // 登录成功，写入localStorage，并跳转首页
+              window.localStorage.setItem('token', data.token)
+              window.localStorage.setItem('userId', data.userId)
+              this.$router.push('/')
+            }, error => {
+              let response = error.response
+              this.$message({
+                message: response.data,
+                type: 'error'
+              })
+              console.log(error)
             })
           } else {
             console.log('登录表单校验不通过！')

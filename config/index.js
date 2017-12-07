@@ -14,6 +14,14 @@ module.exports = {
       '/session': {
         target: 'http://localhost:80',
         changeOrigin: true
+      },
+      '/user': {
+        target: 'http://localhost:80',
+        changeOrigin: true
+      },
+      '/': {
+        target: 'http://localhost:8080',
+        changeOrigin: true
       }
     },
 
