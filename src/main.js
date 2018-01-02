@@ -29,7 +29,7 @@ new Vue({
   },
   mounted () {
     // 获取用户信息
-    this.getUser()
+    // this.getUser()
   },
   methods: {
     // 是否需要登录
@@ -39,7 +39,11 @@ new Vue({
     },
     // 是否已经登录
     isLogin () {
-      return window.localStorage.getItem('token')
+      let token = window.localStorage.getItem('token')
+      if (!token) {
+        token = window.sessionStorage.getItem('token')
+      }
+      return token
     },
     // 登录态检查
     checkLogin () {

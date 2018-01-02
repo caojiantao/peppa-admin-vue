@@ -10,24 +10,11 @@ module.exports = {
     // Paths
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    proxyTable: {
-      '/session': {
-        target: 'http://localhost:80',
-        changeOrigin: true
-      },
-      '/user': {
-        target: 'http://localhost:80',
-        changeOrigin: true
-      },
-      '/': {
-        target: 'http://localhost:8080',
-        changeOrigin: true
-      }
-    },
+    proxyTable: {},
 
     // Various Dev Server settings
     host: 'localhost', // can be overwritten by process.env.HOST
-    port: 8080, // can be overwritten by process.env.HOST, if port is in use, a free one will be determined
+    port: 80, // can be overwritten by process.env.HOST, if port is in use, a free one will be determined
     autoOpenBrowser: false,
     errorOverlay: true,
     notifyOnErrors: true,

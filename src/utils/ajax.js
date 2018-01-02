@@ -1,5 +1,7 @@
 import axios from 'axios'
 
+axios.defaults.withCredentials = true
+
 // 创建axios实例
 const service = axios.create({
   baseURL: process.env.BASE_API,
@@ -8,6 +10,7 @@ const service = axios.create({
   headers: {
     'Content-Type': 'application/x-www-form-urlencoded'
   },
+  withCredentials: false,
   transformRequest: [data => {
     let result = ''
     for (let it in data) {
@@ -19,10 +22,16 @@ const service = axios.create({
 
 // request拦截器
 service.interceptors.request.use(config => {
-  config.headers['X-Token'] = window.localStorage.getItem('token')
+  let token = window.localStorage.getItem('token')
+  if (!token) {
+    token = window.sessionStorage.getItem('token')
+  }
+  if (token) {
+    config.headers['X-Token'] = token
+  }
   return config
 }, error => {
-  console.log(error)
+  Promise.reject(error)
 })
 
 // respone拦截器
@@ -32,9 +41,8 @@ service.interceptors.response.use(
   },
   error => {
     // 统一api异常处理，记得抛出error，让各自的promise处理
-    if (error.response.status === 401) {
-      window.localStorage.clear()
-    }
+    window.localStorage.clear()
+    window.sessionStorage.clear()
     throw error
   }
 )

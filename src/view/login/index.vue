@@ -4,9 +4,9 @@
       <img src="../../assets/logo.png">
     </div>
     <el-form :model="user" ref="user" :rules="rules">
-      <el-form-item prop="account">
+      <el-form-item prop="username">
         <el-input type="text" 
-          v-model="user.account"
+          v-model="user.username"
           placeholder="请输入账号"
           prefix-icon="iconfont el-icon-account">
         </el-input>
@@ -56,8 +56,9 @@
       return {
         // 登录人
         user: {
-          account: '',
-          password: ''
+          username: '',
+          password: '',
+          rememberMe: true
         },
         rules: {
           account: [{required: true, validator: valAcc}],
@@ -71,10 +72,14 @@
           if (valid) {
             let promise = login(this.user)
             promise.then(value => {
-              let data = value.data
-              // 登录成功，写入localStorage，并跳转首页
-              window.localStorage.setItem('token', data.token)
-              window.localStorage.setItem('userId', data.userId)
+              // 根据记住状态设置token存储位置
+              console.log(value)
+              let token = value.data.token
+              if (this.user.rememberMe) {
+                window.localStorage.setItem('token', token)
+              } else {
+                window.sessionStorage.setItem('token', token)
+              }
               this.$router.push('/')
             }, error => {
               let response = error.response
@@ -82,7 +87,6 @@
                 message: response.data,
                 type: 'error'
               })
-              console.log(error)
             })
           } else {
             console.log('登录表单校验不通过！')
