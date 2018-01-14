@@ -70,7 +70,7 @@
     methods: {
       search () {
         let params = '?keyword=' + encodeURIComponent(this.keyword) + '&page=1&pagesize=10'
-        let promise = axios.get('http://localhost:8090/kugou/songs' + params, {
+        let promise = axios.get('http://211.159.153.160:8090/kugou/songs' + params, {
           withCredentials: false
         })
         promise.then(response => {
