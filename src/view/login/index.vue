@@ -73,7 +73,6 @@
             let promise = login(this.user)
             promise.then(value => {
               // 根据记住状态设置token存储位置
-              console.log(value)
               let token = value.data.token
               if (this.user.rememberMe) {
                 window.localStorage.setItem('token', token)
