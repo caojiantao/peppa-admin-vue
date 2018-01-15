@@ -96,9 +96,9 @@
       // 时长计算
       formatterDuration (row, column, cellValue) {
         let min = Math.floor(cellValue / 60)
-        let minStr = (min < 10) ? ('0' + min) : (min + '')
-        let sec = Math.floor(cellValue / 60)
-        let secStr = (sec < 10) ? ('0' + sec) : (sec + '')
+        let minStr = (min < 10) ? ('0' + min) : String(min)
+        let sec = cellValue % 60
+        let secStr = (sec < 10) ? ('0' + sec) : String(sec)
         return minStr + ':' + secStr
       },
       // 获取歌曲地址

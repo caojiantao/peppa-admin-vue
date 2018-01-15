@@ -8,8 +8,13 @@ const store = new Vuex.Store({
     // 不用登录拦截地址列表
     excludeCheckLoginPaths: ['/login'],
     tabData: {
-      activeTabName: '',
-      tabs: []
+      activeTabName: 'welcome',
+      tabs: [{
+        title: '欢迎',
+        name: 'welcome',
+        content: 'Welcome',
+        closable: false
+      }]
     },
     user: {}
   },
@@ -20,7 +25,20 @@ const store = new Vuex.Store({
     // 增加tabDate
     addTab (state, tabData) {
       state.tabData.tabs.push(tabData.tabs)
-      state.tabData.activeTabName = tabData.activeTabName
+      this.commit('updateActiveTabName', tabData.activeTabName)
+    },
+    // 移除一个tab
+    removeTab (state, name) {
+      state.tabData.tabs.forEach((tab, index) => {
+        if (name === tab.name) {
+          // 注意splice函数用法
+          state.tabData.tabs.splice(index, 1)
+        }
+      })
+    },
+    // 改变激活tab
+    updateActiveTabName (state, name) {
+      state.tabData.activeTabName = name
     }
   }
 })

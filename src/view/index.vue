@@ -9,12 +9,13 @@
           <el-tabs
             v-model="tabData.activeTabName"
             type="card"
-            closable>
+            @tab-remove="removeTab">
             <el-tab-pane
               v-for="tab in tabData.tabs"
               :key="tab.name"
               :label="tab.title"
-              :name="tab.name">
+              :name="tab.name"
+              :closable="tab.closable">
               <component :is="tab.content"></component>
             </el-tab-pane>
           </el-tabs>
@@ -44,20 +45,36 @@
   }
 </style>
 
-
 <script>
   import SideBar from '@/components/SideBar'
   import MyHeader from '@/components/Header'
   import MyFooter from '@/components/Footer'
   import Dictionary from '@/view/dictionary/index'
   import Songs from '@/view/simulation/kugou/songs'
+  import Welcome from '@/view/welcome'
 
   export default {
     name: 'index',
-    components: {SideBar, MyHeader, MyFooter, Dictionary, Songs},
+    components: {SideBar, MyHeader, MyFooter, Dictionary, Songs, Welcome},
     data () {
       return {
         tabData: this.$store.state.tabData
+      }
+    },
+    methods: {
+      removeTab (name) {
+        let tabData = this.tabData
+        // 移除的tab是否为当前tab
+        if (name === tabData.activeTabName) {
+          tabData.tabs.forEach((tab, index) => {
+            if (tab.name === name) {
+              let nextTab = tabData.tabs[index + 1] || tabData.tabs[index - 1]
+              this.$store.commit('updateActiveTabName', nextTab.name)
+            }
+          })
+        }
+        // 注意更新store全局tabs
+        this.$store.commit('removeTab', name)
       }
     }
   }
