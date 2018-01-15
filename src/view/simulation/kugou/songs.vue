@@ -1,8 +1,5 @@
 <template>
 <el-container direction="vertical">
-  <el-header>
-    <Breadcrumb></Breadcrumb>
-  </el-header>
   <el-main class="content">
     <el-form inline>
       <el-form-item label="关键词">
@@ -14,7 +11,8 @@
     </el-form>
 
     <el-table
-      :data="tableData">
+      v-loading="loading"
+      :data="tableData.data">
       <el-table-column
         prop="FileName"
         label="歌曲名">
@@ -33,6 +31,15 @@
         :formatter="formatterDuration">
       </el-table-column>
     </el-table>
+    <el-pagination
+      @size-change="changeSize"
+      @current-change="changePage"
+      :current-page="tableData.page"
+      :page-size="tableData.pagesize"
+      :page-sizes="tableData.pagesizes"
+      :total="tableData.total"
+      layout="total, sizes, prev, pager, next, jumper">
+    </el-pagination>
   </el-main>
 </el-container>
 </template>
@@ -44,10 +51,6 @@
     text-align: center;
     line-height: 60px;
   }
-
-  .el-breadcrumb {
-    line-height: 60px;
-  }
   
   .content {
     background-color: #E9EEF3;
@@ -56,29 +59,38 @@
 </style>
 
 
-<<script>
-  import Breadcrumb from '@/components/Breadcrumb'
+<script>
   import axios from 'axios'
 
   export default {
     data () {
       return {
+        loading: false,
         keyword: '',
-        tableData: null
+        tableData: {
+          data: null,
+          page: 1,
+          pagesize: 10,
+          pagesizes: [10, 20, 50],
+          total: 0
+        }
       }
     },
     methods: {
       search () {
-        let params = '?keyword=' + encodeURIComponent(this.keyword) + '&page=1&pagesize=10'
+        this.loading = true
+        let params = '?keyword=' + this.keyword + '&page=' + this.tableData.page + '&pagesize=' + this.tableData.pagesize
         let promise = axios.get('http://211.159.153.160:8090/kugou/songs' + params, {
           withCredentials: false
         })
         promise.then(response => {
           let result = response.data
-          this.tableData = result.data
-        })
-        .catch(function (error) {
+          this.tableData.data = result.data
+          this.tableData.total = result.total
+          this.loading = false
+        }).catch(function (error) {
           console.log(error)
+          this.loading = false
         })
       },
       // 时长计算
@@ -103,9 +115,18 @@
         .catch(function (error) {
           console.log(error)
         })
+      },
+      // 分页大小改变
+      changeSize (size) {
+        this.tableData.pagesize = size
+        this.search()
+      },
+      // 分页跳转
+      changePage (page) {
+        this.tableData.page = page
+        this.search()
       }
-    },
-    components: {Breadcrumb}
+    }
   }
 </script>
 

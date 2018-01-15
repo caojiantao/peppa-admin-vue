@@ -1,8 +1,5 @@
 <template>
 <el-container direction="vertical">
-  <el-header>
-    <Breadcrumb></Breadcrumb>
-  </el-header>
   <el-main class="content">
     main
   </el-main>
@@ -31,10 +28,7 @@
 
 
 <<script>
-  import Breadcrumb from '@/components/Breadcrumb'
-
   export default {
-    components: {Breadcrumb}
   }
 </script>
 

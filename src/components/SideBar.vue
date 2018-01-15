@@ -1,6 +1,6 @@
 <template>
   <el-aside width="250px">
-    <el-menu router>
+    <el-menu>
       <!-- 递归菜单 -->
       <MyMenu v-for="menu in menus" :key="menu.id" :menu="menu"></MyMenu>
     </el-menu>
@@ -37,7 +37,7 @@
   export default {
     data () {
       return {
-        menus: null
+        menus: []
       }
     },
     created: function () {
