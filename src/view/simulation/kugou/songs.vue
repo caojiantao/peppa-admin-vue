@@ -60,7 +60,7 @@
 
 
 <script>
-  import axios from 'axios'
+  import http from '@/utils/http'
 
   export default {
     data () {
@@ -79,9 +79,14 @@
     methods: {
       search () {
         this.loading = true
-        let params = '?keyword=' + this.keyword + '&page=' + this.tableData.page + '&pagesize=' + this.tableData.pagesize
-        let promise = axios.get('http://211.159.153.160:8090/kugou/songs' + params, {
-          withCredentials: false
+        let promise = http({
+          method: 'get',
+          url: '/kugou/songs',
+          params: {
+            keyword: this.keyword,
+            page: this.tableData.page,
+            pagesize: this.tableData.pagesize
+          }
         })
         promise.then(response => {
           let result = response.data
@@ -103,9 +108,13 @@
       },
       // 获取歌曲地址
       playSong (row) {
-        let params = '?fileHash=' + row.FileHash + '&albumId=' + row.AlbumID
-        let promise = axios.get('http://211.159.153.160:8090/kugou/songs/play' + params, {
-          withCredentials: false
+        let promise = http({
+          method: 'get',
+          url: '/kugou/songs/play',
+          params: {
+            fileHash: row.FileHash,
+            albumId: row.AlbumID
+          }
         })
         promise.then(response => {
           let result = response.data
