@@ -52,10 +52,11 @@
   import Dictionary from '@/view/dictionary/index'
   import Songs from '@/view/simulation/kugou/songs'
   import Welcome from '@/view/welcome'
+  import Menus from '@/view/security/menu'
 
   export default {
     name: 'index',
-    components: {SideBar, MyHeader, MyFooter, Dictionary, Songs, Welcome},
+    components: {SideBar, MyHeader, MyFooter, Dictionary, Songs, Welcome, Menus},
     data () {
       return {
         tabData: this.$store.state.tabData

@@ -74,10 +74,13 @@
             promise.then(value => {
               // 根据记住状态设置token存储位置
               let token = value.data.token
+              let username = value.data.username
               if (this.user.rememberMe) {
                 window.localStorage.setItem('token', token)
+                window.localStorage.setItem('username', username)
               } else {
                 window.sessionStorage.setItem('token', token)
+                window.sessionStorage.setItem('username', username)
               }
               this.$router.push('/')
             }, error => {

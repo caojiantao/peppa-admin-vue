@@ -28,9 +28,16 @@
    * 获取菜单信息
    */
   function listMenu () {
+    let username = window.sessionStorage.getItem('username')
+    if (!username) {
+      username = window.localStorage.getItem('username')
+    }
     return ajax({
       url: '/menus',
-      method: 'get'
+      method: 'get',
+      params: {
+        username: username
+      }
     })
   }
 
@@ -42,7 +49,6 @@
     },
     created: function () {
       let promise = listMenu()
-      // let $router = this.$router
       promise.then(value => {
         this.menus = value.data
       }, error => {
