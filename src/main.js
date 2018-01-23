@@ -54,9 +54,16 @@ new Vue({
     },
     getUser () {
       if (this.needLogin() && this.isLogin()) {
+        let username = window.sessionStorage.getItem('username')
+        if (!username) {
+          username = window.localStorage.getItem('username')
+        }
         let promise = ajax({
           method: 'get',
-          url: '/user/' + window.localStorage.getItem('userId')
+          url: '/users',
+          params: {
+            username: username
+          }
         })
         promise.then(value => {
           let data = value.data
