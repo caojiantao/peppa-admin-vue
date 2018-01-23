@@ -1,7 +1,7 @@
 <template>
   <div class="login-wrapper">
     <div class="logo">
-      <img src="../../assets/logo.png">
+      <img src="../../assets/peppa.png">
     </div>
     <el-form :model="user" ref="user" :rules="rules">
       <el-form-item prop="username">
@@ -17,6 +17,9 @@
           placeholder="请输入密码"
           prefix-icon="iconfont el-icon-password">
         </el-input>
+      </el-form-item>
+      <el-form-item>
+        <el-checkbox class="rememberMe" v-model="user.rememberMe">7天免登陆</el-checkbox>
       </el-form-item>
       <el-form-item>
         <el-button class="submit" type="primary" @click="submitForm('user')">登录</el-button>
@@ -58,7 +61,7 @@
         user: {
           username: '',
           password: '',
-          rememberMe: true
+          rememberMe: false
         },
         rules: {
           account: [{required: true, validator: valAcc}],
@@ -110,8 +113,17 @@
   }
 
   .logo{
+    width: 100%;
     padding: 20px;
-    text-align: center;
+    box-sizing: border-box;
+  }
+
+  .logo img{
+    width: 100%;
+  }
+
+  .rememberMe{
+    float: right;
   }
 
   .submit{
