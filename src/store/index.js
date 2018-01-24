@@ -15,13 +15,9 @@ const store = new Vuex.Store({
         content: 'Welcome',
         closable: false
       }]
-    },
-    user: {}
+    }
   },
   mutations: {
-    updateUser (state, user) {
-      state.user = user
-    },
     // 增加tabDate
     addTab (state, tabData) {
       state.tabData.tabs.push(tabData.tabs)

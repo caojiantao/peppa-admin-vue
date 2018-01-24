@@ -19,7 +19,7 @@
     <el-form :model="form" ref="menu">
       <el-form-item label="路径" :label-width="formLabelWidth">
         <el-input v-model="form.parentId" style="display:none;"></el-input>
-        <el-input v-model="form.path" disabled></el-input>
+        <el-input v-model="nodePath" disabled></el-input>
       </el-form-item>
       <el-form-item label="名称" :label-width="formLabelWidth">
         <el-input v-model="form.name"></el-input>
@@ -47,6 +47,10 @@
 
   .el-tree-node__content {
     height: 40px;
+  }
+
+  .icon-operate{
+    margin: 0 0 0 10px;
   }
 </style>
 
@@ -79,15 +83,14 @@
           children: 'children'
         },
         form: {
-          parent: null,
-          path: '',
-
           parentId: '',
           name: '',
           href: '',
           iconClass: ''
         },
         boxVisible: false,
+        parentNode: null,
+        nodePath: '',
         formLabelWidth: '80px'
       }
     },
@@ -97,14 +100,13 @@
         // 弹出框关闭初始化form数据
         if (!newVal) {
           this.form = {
-            parent: null,
-            path: '',
-
             parentId: '',
             name: '',
             href: '',
             iconClass: ''
           }
+          this.parentNode = null
+          this.nodePath = ''
         }
       }
     },
@@ -114,29 +116,29 @@
         return h('span', [
           h('span', node.label),
           h('span', [
-            h('el-button', {
+            h('i', {
               attrs: {
-                'size': 'mini'
+                'class': 'el-icon-circle-plus-outline icon-operate'
               },
               on: {
                 click: () => {
                   // 递归获取当前node的全路径名称，注意引用传递
                   let temp = node
                   while (temp && temp.level) {
-                    this.form.path = '/' + temp.label + this.form.path
+                    this.nodePath = '/' + temp.label + this.nodePath
                     temp = temp.parent
                   }
-                  this.form.parent = data
+                  this.parentNode = data
                   this.form.parentId = data.id
                   this.boxVisible = true
                 }
               }
-            }, '添加'),
-            h('el-button', {
+            }),
+            h('i', {
               attrs: {
-                'size': 'mini'
+                'class': 'el-icon-delete icon-operate'
               }
-            }, '删除')
+            })
           ])
         ])
       },

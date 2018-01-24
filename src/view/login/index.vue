@@ -30,6 +30,7 @@
 
 <script>
   import ajax from '@/utils/ajax'
+  import {saveToken} from '@/utils/auth'
 
   function login (user) {
     return ajax({
@@ -75,16 +76,11 @@
           if (valid) {
             let promise = login(this.user)
             promise.then(value => {
+              console.log(value)
               // 根据记住状态设置token存储位置
               let token = value.data.token
-              let username = value.data.username
-              if (this.user.rememberMe) {
-                window.localStorage.setItem('token', token)
-                window.localStorage.setItem('username', username)
-              } else {
-                window.sessionStorage.setItem('token', token)
-                window.sessionStorage.setItem('username', username)
-              }
+              let userId = value.data.userId
+              saveToken(token, userId, this.rememberMe)
               this.$router.push('/')
             }, error => {
               let response = error.response

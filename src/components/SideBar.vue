@@ -23,21 +23,15 @@
 <script>
   import ajax from '@/utils/ajax'
   import MyMenu from '@/components/Menu'
+  import {getUserId} from '@/utils/auth'
 
   /**
    * 获取菜单信息
    */
   function listMenu () {
-    let username = window.sessionStorage.getItem('username')
-    if (!username) {
-      username = window.localStorage.getItem('username')
-    }
     return ajax({
-      url: '/menus',
-      method: 'get',
-      params: {
-        username: username
-      }
+      url: '/users/' + getUserId() + '/menus',
+      method: 'get'
     })
   }
 

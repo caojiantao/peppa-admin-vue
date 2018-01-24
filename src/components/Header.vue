@@ -3,7 +3,7 @@
     <el-header>
       <img src="../assets/dog.png" alt="logo" class="header-logo">
       <ul class="header-operations">
-        <li>曹建涛</li>
+        <li>{{user.nickname}}</li>
         <li @click="logout()">注销</li>
       </ul>
     </el-header>
@@ -41,7 +41,31 @@
 </style>
 
 <script>
+  import ajax from '@/utils/ajax'
+  import {getUserId} from '@/utils/auth'
+
   export default{
+    mounted () {
+      let promise = ajax({
+        url: '/users/' + getUserId(),
+        method: 'get'
+      })
+      promise.then(value => {
+        this.user = value.data
+        console.log(this.user)
+      }, error => {
+        let response = error.response
+        this.$message({
+          message: response.data,
+          type: 'error'
+        })
+      })
+    },
+    data () {
+      return {
+        user: {}
+      }
+    },
     methods: {
       // 注销用户
       logout () {
