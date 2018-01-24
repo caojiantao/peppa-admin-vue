@@ -1,7 +1,7 @@
 <template>
 <el-container direction="vertical">
   <el-main class="content">
-    <el-button>添加顶级菜单</el-button>
+    <el-button @click="boxVisible=true">添加顶级菜单</el-button>
     <el-tree
       :data="menus"
       :props="defaultProps"
@@ -59,6 +59,7 @@
   import ajax from '@/utils/ajax'
 
   export default {
+    // 组件加载时获取所有菜单信息
     mounted () {
       let promise = ajax({
         url: '/menus'
@@ -82,15 +83,15 @@
           label: 'name',
           children: 'children'
         },
+        boxVisible: false,
         form: {
           parentId: '',
           name: '',
           href: '',
           iconClass: ''
         },
-        boxVisible: false,
-        parentNode: null,
-        nodePath: '',
+        nodePath: '/',
+        node: null,
         formLabelWidth: '80px'
       }
     },
@@ -105,12 +106,23 @@
             href: '',
             iconClass: ''
           }
-          this.parentNode = null
-          this.nodePath = ''
+          this.nodePath = '/'
+          this.node = null
         }
       }
     },
     methods: {
+      getCurrentPath (node) {
+        let nodePath = ''
+        while (node && node.level) {
+          nodePath = '/' + node.label + nodePath
+          node = node.parent
+        }
+        return nodePath + '/'
+      },
+      getParentPath (node) {
+        return this.getCurrentPath(node.parent)
+      },
       // 渲染节点，加上操作
       renderContent (h, { node, data, store }) {
         return h('span', [
@@ -122,13 +134,9 @@
               },
               on: {
                 click: () => {
-                  // 递归获取当前node的全路径名称，注意引用传递
                   let temp = node
-                  while (temp && temp.level) {
-                    this.nodePath = '/' + temp.label + this.nodePath
-                    temp = temp.parent
-                  }
-                  this.parentNode = data
+                  this.nodePath = this.getCurrentPath(temp)
+                  this.node = node
                   this.form.parentId = data.id
                   this.boxVisible = true
                 }
@@ -136,7 +144,34 @@
             }),
             h('i', {
               attrs: {
+                'class': 'el-icon-edit icon-operate'
+              },
+              on: {
+                click: () => {
+                  let temp = node
+                  this.nodePath = this.getParentPath(temp)
+                  this.node = node
+                  this.form = data
+                  this.boxVisible = true
+                }
+              }
+            }),
+            h('i', {
+              attrs: {
                 'class': 'el-icon-delete icon-operate'
+              },
+              on: {
+                click: () => {
+                  this.$confirm('此操作将永久删除该菜单, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                  }).then(() => {
+                    this.node = node
+                    this.removeMenu(data.id)
+                  }).catch(() => {
+                  })
+                }
               }
             })
           ])
@@ -145,37 +180,92 @@
       submitForm () {
         this.$refs['menu'].validate((valid) => {
           if (valid) {
-            let promise = ajax({
-              url: '/menus',
-              method: 'post',
-              data: this.form
-            })
-            promise.then(value => {
-              let parent = this.form.parent
-              let menu = value.data
-              if (!parent) {
-                // 添加顶级节点
-                this.menus.push(menu)
-              } else {
-                if (!parent.children || parent.children.length === 0) {
-                  // 当前父节点无子节点，初始化children
-                  this.$set(parent, 'children', [])
-                }
-                // 添加到当前子节点中
-                parent.children.push(menu)
-              }
-              this.boxVisible = false
-            }, error => {
-              let response = error.response
-              this.$message({
-                message: response.data,
-                type: 'error'
-              })
-            })
+            if (this.form.id) {
+              // 新增菜单
+              this.updateMenu()
+            } else {
+              // 更新菜单
+              this.saveMenu()
+            }
           } else {
             console.log('登录表单校验不通过！')
             return false
           }
+        })
+      },
+      saveMenu () {
+        let promise = ajax({
+          url: '/menus',
+          method: 'post',
+          data: this.form
+        })
+        promise.then(value => {
+          let menu = value.data
+          if (!this.node) {
+            // 添加顶级节点
+            this.menus.push(menu)
+          } else {
+            let nodeData = this.node.data
+            if (!nodeData.children || nodeData.children.length === 0) {
+              // 当前父节点无子节点，初始化children
+              this.$set(nodeData, 'children', [])
+            }
+            // 添加到当前子节点中
+            nodeData.children.push(menu)
+          }
+          this.boxVisible = false
+        }, error => {
+          let response = error.response
+          this.$message({
+            message: response.data,
+            type: 'error'
+          })
+        })
+      },
+      updateMenu () {
+        delete this.form.children
+        this.form._method = 'put'
+        let promise = ajax({
+          url: '/menus',
+          method: 'post',
+          data: this.form
+        })
+        promise.then(value => {
+          this.node.data = value.data
+          this.boxVisible = false
+        }, error => {
+          let response = error.response
+          this.$message({
+            message: response.data,
+            type: 'error'
+          })
+        })
+      },
+      removeMenu (id) {
+        let promise = ajax({
+          url: '/menus/' + id,
+          method: 'post',
+          data: {
+            _method: 'delete'
+          }
+        })
+        promise.then(value => {
+          let childNodes = this.node.parent.childNodes
+          let index
+          // 记得移除当前项
+          for (let i = 0; i < childNodes.length; i++) {
+            if (id === childNodes[i].data.id) {
+              index = i
+              break
+            }
+          }
+          childNodes.splice(index, 1)
+        }, error => {
+          let response = error.response
+          this.$message({
+            message: response.data,
+            type: 'error'
+          })
         })
       }
     }

@@ -44,8 +44,8 @@ service.interceptors.response.use(
   },
   error => {
     // 统一api异常处理，记得抛出error，让各自的promise处理
-    window.localStorage.clear()
-    window.sessionStorage.clear()
+    // window.localStorage.clear()
+    // window.sessionStorage.clear()
     throw error
   }
 )

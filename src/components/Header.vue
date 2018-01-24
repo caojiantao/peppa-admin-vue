@@ -52,7 +52,6 @@
       })
       promise.then(value => {
         this.user = value.data
-        console.log(this.user)
       }, error => {
         let response = error.response
         this.$message({

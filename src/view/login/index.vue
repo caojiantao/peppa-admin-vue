@@ -76,7 +76,6 @@
           if (valid) {
             let promise = login(this.user)
             promise.then(value => {
-              console.log(value)
               // 根据记住状态设置token存储位置
               let token = value.data.token
               let userId = value.data.userId
