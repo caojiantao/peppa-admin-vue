@@ -1,7 +1,7 @@
 <template>
 <el-container direction="vertical">
   <el-main class="content">
-    <el-button @click="boxVisible=true">添加顶级菜单</el-button>
+    <el-button @click="dialogVisible=true">添加顶级菜单</el-button>
     <el-tree
       :data="menus"
       :props="defaultProps"
@@ -14,8 +14,8 @@
   </el-main>
 
   <el-dialog 
-    title="新增菜单"
-    :visible.sync="boxVisible">
+    :title="dialogTitle"
+    :visible.sync="dialogVisible">
     <el-form :model="form" ref="menu">
       <el-form-item label="路径" :label-width="formLabelWidth">
         <el-input v-model="form.parentId" style="display:none;"></el-input>
@@ -32,7 +32,7 @@
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
-      <el-button @click="boxVisible=false">取 消</el-button>
+      <el-button @click="dialogVisible=false">取 消</el-button>
       <el-button type="primary" @click="submitForm">确 定</el-button>
     </div>
   </el-dialog>
@@ -83,7 +83,10 @@
           label: 'name',
           children: 'children'
         },
-        boxVisible: false,
+
+        dialogVisible: false,
+        dialogTitle: '',
+        formLabelWidth: '80px',
         form: {
           parentId: '',
           name: '',
@@ -91,15 +94,15 @@
           iconClass: ''
         },
         nodePath: '/',
-        node: null,
-        formLabelWidth: '80px'
+        node: null
       }
     },
     watch: {
       // 监听弹出框状态
-      boxVisible (newVal, oldVal) {
+      dialogVisible (newVal, oldVal) {
         // 弹出框关闭初始化form数据
         if (!newVal) {
+          this.dialogTitle = ''
           this.form = {
             parentId: '',
             name: '',
@@ -134,10 +137,11 @@
               },
               on: {
                 click: () => {
+                  this.dialogTitle = '新增菜单'
                   this.nodePath = this.getCurrentPath(node)
                   this.node = node
                   this.form.parentId = data.id
-                  this.boxVisible = true
+                  this.dialogVisible = true
                 }
               }
             }),
@@ -147,12 +151,12 @@
               },
               on: {
                 click: () => {
-                  let temp = node
-                  this.nodePath = this.getParentPath(temp)
+                  this.dialogTitle = '编辑菜单'
+                  this.nodePath = this.getParentPath(node)
                   this.node = node
                   // 复制对象，防止双向更改菜单树data
                   this.form = JSON.parse(JSON.stringify(data))
-                  this.boxVisible = true
+                  this.dialogVisible = true
                 }
               }
             }),
@@ -177,14 +181,13 @@
           ])
         ])
       },
+      // 提交表单请求
       submitForm () {
         this.$refs['menu'].validate((valid) => {
           if (valid) {
             if (this.form.id) {
-              // 新增菜单
               this.updateMenu()
             } else {
-              // 更新菜单
               this.saveMenu()
             }
           } else {
@@ -193,6 +196,7 @@
           }
         })
       },
+      // 新增菜单
       saveMenu () {
         let promise = ajax({
           url: '/menus',
@@ -213,7 +217,7 @@
             // 添加到当前子节点中
             nodeData.children.push(menu)
           }
-          this.boxVisible = false
+          this.dialogVisible = false
         }, error => {
           let response = error.response
           this.$message({
@@ -222,6 +226,7 @@
           })
         })
       },
+      // 更新菜单
       updateMenu () {
         delete this.form.children
         this.form._method = 'put'
@@ -236,7 +241,7 @@
           // 返回的data只包含基本属性
           this.node.data = value.data
           this.node.data.children = children
-          this.boxVisible = false
+          this.dialogVisible = false
         }, error => {
           let response = error.response
           this.$message({
@@ -245,6 +250,7 @@
           })
         })
       },
+      // 删除菜单
       removeMenu (id) {
         let promise = ajax({
           url: '/menus/' + id,
