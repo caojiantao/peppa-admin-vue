@@ -3,7 +3,7 @@
   <el-main class="content">
     <el-form inline>
       <el-form-item label="关键词">
-        <el-input v-model="keyword" placeholder="关键词"></el-input>
+        <el-input v-model="keyword" placeholder="请输入关键词"></el-input>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="search">查询</el-button>
@@ -68,7 +68,7 @@
         loading: false,
         keyword: '',
         tableData: {
-          data: null,
+          data: [],
           page: 1,
           pagesize: 10,
           pagesizes: [10, 20, 50],
@@ -80,8 +80,8 @@
       search () {
         this.loading = true
         let promise = http({
-          method: 'get',
           url: '/kugou/songs',
+          method: 'get',
           params: {
             keyword: this.keyword,
             page: this.tableData.page,

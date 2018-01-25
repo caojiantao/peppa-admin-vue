@@ -15,7 +15,7 @@
 
   <el-dialog 
     title="新增菜单"
-    :visible="boxVisible">
+    :visible.sync="boxVisible">
     <el-form :model="form" ref="menu">
       <el-form-item label="路径" :label-width="formLabelWidth">
         <el-input v-model="form.parentId" style="display:none;"></el-input>
@@ -134,8 +134,7 @@
               },
               on: {
                 click: () => {
-                  let temp = node
-                  this.nodePath = this.getCurrentPath(temp)
+                  this.nodePath = this.getCurrentPath(node)
                   this.node = node
                   this.form.parentId = data.id
                   this.boxVisible = true
@@ -151,7 +150,8 @@
                   let temp = node
                   this.nodePath = this.getParentPath(temp)
                   this.node = node
-                  this.form = data
+                  // 复制对象，防止双向更改菜单树data
+                  this.form = JSON.parse(JSON.stringify(data))
                   this.boxVisible = true
                 }
               }
@@ -206,9 +206,9 @@
             this.menus.push(menu)
           } else {
             let nodeData = this.node.data
-            if (!nodeData.children || nodeData.children.length === 0) {
+            if (!nodeData.children) {
               // 当前父节点无子节点，初始化children
-              this.$set(nodeData, 'children', [])
+              nodeData.children = []
             }
             // 添加到当前子节点中
             nodeData.children.push(menu)
@@ -231,7 +231,11 @@
           data: this.form
         })
         promise.then(value => {
+          // 先暂存children，更新基本属性还要初始化的
+          let children = this.node.data.children
+          // 返回的data只包含基本属性
           this.node.data = value.data
+          this.node.data.children = children
           this.boxVisible = false
         }, error => {
           let response = error.response

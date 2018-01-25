@@ -6,7 +6,7 @@
 </el-container>
 </template>
 
-<<style scoped>
+<style scoped>
   
   .content {
     background-color: #E9EEF3;
@@ -17,7 +17,7 @@
 </style>
 
 
-<<script>
+<script>
   export default {
   }
 </script>
