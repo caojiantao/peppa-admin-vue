@@ -57,6 +57,7 @@
         <el-tree
           :data="menus"
           :props="defaultProps"
+          ref="tree"
           show-checkbox
           node-key="id"
           default-expand-all
@@ -67,7 +68,7 @@
     </el-row>
     <div slot="footer" class="dialog-footer">
       <el-button @click="dialogVisible=false">取 消</el-button>
-      <el-button type="primary">确 定</el-button>
+      <el-button type="primary" @click="submitForm">确 定</el-button>
     </div>
   </el-dialog>
 </el-container>
@@ -180,10 +181,31 @@
       // 获取所有菜单信息
       listMenu () {
         let promise = ajax({
-          url: '/menus'
+          url: '/menus',
+          method: 'get'
         })
         promise.then(value => {
           this.menus = value.data
+        }, error => {
+          let response = error.response
+          this.$message({
+            message: response.data,
+            type: 'error'
+          })
+        })
+      },
+      submitForm () {
+        this.form.menuIds = this.$refs.tree.getCheckedKeys().join()
+        let promise = ajax({
+          url: '/roles',
+          method: 'post',
+          data: this.form
+        })
+        promise.then(value => {
+          this.dialogVisible = false
+          // 添加角色成功后修改当前页面数据
+          this.tableData.data.push(value.data)
+          this.tableData.total++
         }, error => {
           let response = error.response
           this.$message({
@@ -199,8 +221,7 @@
         // 弹出框关闭初始化form数据
         if (!newVal) {
           this.dialogTitle = ''
-          this.form = {
-          }
+          this.form = {}
         }
       }
     }

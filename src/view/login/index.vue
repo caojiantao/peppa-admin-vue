@@ -79,7 +79,7 @@
               // 根据记住状态设置token存储位置
               let token = value.data.token
               let userId = value.data.userId
-              saveToken(token, userId, this.rememberMe)
+              saveToken(token, userId, this.user.rememberMe)
               this.$router.push('/')
             }, error => {
               let response = error.response
