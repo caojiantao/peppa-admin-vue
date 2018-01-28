@@ -47,7 +47,7 @@
     width="70%">
     <el-row>
       <el-col :span="12"> 
-        <el-form :model="form">
+        <el-form :model="form" ref="role">
           <el-form-item label="名称" :label-width="formLabelWidth">
             <el-input v-model="form.name"></el-input>
           </el-form-item>
@@ -55,7 +55,7 @@
       </el-col>
       <el-col :span="12">
         <el-tree
-          :data="menus"
+          :data="treeData"
           :props="defaultProps"
           ref="tree"
           show-checkbox
@@ -63,6 +63,7 @@
           default-expand-all
           highlight-current
           :expand-on-click-node="false">
+          <!-- keys 为什么不能动态修改 -->
         </el-tree>
       </el-col>
     </el-row>
@@ -85,6 +86,7 @@
 
 <script>
   import ajax from '@/utils/ajax'
+  import {getTreeData} from '@/utils/common'
 
   export default {
     // 组件加载时获取所有菜单信息
@@ -109,7 +111,7 @@
         formLabelWidth: '80px',
         form: {
         },
-        menus: [{}],
+        menus: [],
         defaultProps: {
           id: 'id',
           label: 'name',
@@ -158,24 +160,47 @@
         this.dialogVisible = true
       },
       editRole (item) {
-        console.log(item)
         this.dialogTitle = '编辑角色'
         this.dialogVisible = true
-      },
-      removeRole (item) {
-        this.$confirm('此操作将永久删除该角色, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          ajax({
-            url: '/roles/id',
-            method: 'post',
-            data: {
-              _method: 'delete'
-            }
+        // 首先获取角色基本信息
+        ajax({
+          url: '/roles/' + item.id,
+          method: 'get'
+        }).then(value => {
+          this.form = value.data
+        }, error => {
+          let response = error.response
+          this.$message({
+            message: response.data,
+            type: 'error'
           })
-        }).catch(() => {
+        })
+        // 然后获取角色对应菜单信息
+        ajax({
+          url: '/roles/' + item.id + '/menus',
+          method: 'get'
+        }).then(value => {
+          let checkedKeys = []
+          let menus = value.data
+          for (let i in menus) {
+            let hasChild = false
+            for (let j in menus) {
+              if (menus[i].id === menus[j].parentId) {
+                hasChild = true
+                break
+              }
+            }
+            if (!hasChild) {
+              checkedKeys.push(menus[i].id)
+            }
+          }
+          this.$refs.tree.setCheckedKeys(checkedKeys)
+        }, error => {
+          let response = error.response
+          this.$message({
+            message: response.data,
+            type: 'error'
+          })
         })
       },
       // 获取所有菜单信息
@@ -195,6 +220,20 @@
         })
       },
       submitForm () {
+        this.$refs['role'].validate((valid) => {
+          if (valid) {
+            if (this.form.id) {
+              this.updateRole()
+            } else {
+              this.saveRole()
+            }
+          } else {
+            console.log('登录表单校验不通过！')
+            return false
+          }
+        })
+      },
+      saveRole () {
         this.form.menuIds = this.$refs.tree.getCheckedKeys().join()
         let promise = ajax({
           url: '/roles',
@@ -203,9 +242,7 @@
         })
         promise.then(value => {
           this.dialogVisible = false
-          // 添加角色成功后修改当前页面数据
-          this.tableData.data.push(value.data)
-          this.tableData.total++
+          this.search()
         }, error => {
           let response = error.response
           this.$message({
@@ -213,6 +250,59 @@
             type: 'error'
           })
         })
+      },
+      updateRole () {
+        this.form.menuIds = this.$refs.tree.getCheckedKeys().join()
+        this.form._method = 'put'
+        let promise = ajax({
+          url: '/roles',
+          method: 'post',
+          data: this.form
+        })
+        promise.then(value => {
+          this.dialogVisible = false
+          this.search()
+        }, error => {
+          let response = error.response
+          this.$message({
+            message: response.data,
+            type: 'error'
+          })
+        })
+      },
+      removeRole (item) {
+        this.$confirm('此操作将永久删除该角色, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          ajax({
+            url: '/roles/' + item.id,
+            method: 'post',
+            data: {
+              _method: 'delete'
+            }
+          }).then(value => {
+            this.search()
+          }, error => {
+            let response = error.response
+            this.$message({
+              message: response.data,
+              type: 'error'
+            })
+          })
+        }).catch(() => {
+        })
+      }
+    },
+    computed: {
+      // 计算菜单树数据，坑爹，el-tree必须有元素
+      treeData: function () {
+        let nodes = getTreeData(this.menus)
+        if (nodes.length === 0) {
+          nodes.push({})
+        }
+        return nodes
       }
     },
     watch: {
@@ -222,6 +312,7 @@
         if (!newVal) {
           this.dialogTitle = ''
           this.form = {}
+          this.$refs.tree.setCheckedKeys([])
         }
       }
     }

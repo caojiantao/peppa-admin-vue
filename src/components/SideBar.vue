@@ -2,7 +2,11 @@
   <el-aside width="250px">
     <el-menu>
       <!-- 递归菜单 -->
-      <MyMenu v-for="menu in menus" :key="menu.id" :menu="menu"></MyMenu>
+      <MyMenu 
+        v-for="menu in treeData" 
+        :key="menu.id" 
+        :menu="menu">
+      </MyMenu>
     </el-menu>
   </el-aside>
 </template>
@@ -24,6 +28,7 @@
   import ajax from '@/utils/ajax'
   import MyMenu from '@/components/Menu'
   import {getUserId} from '@/utils/auth'
+  import {getTreeData} from '@/utils/common'
 
   /**
    * 获取菜单信息
@@ -58,6 +63,12 @@
         })
       })
     },
-    components: {MyMenu}
+    components: {MyMenu},
+    computed: {
+      // 计算菜单树数据
+      treeData: function () {
+        return getTreeData(this.menus)
+      }
+    }
   }
 </script>

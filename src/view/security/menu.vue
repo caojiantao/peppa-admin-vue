@@ -3,7 +3,7 @@
   <el-main class="content">
     <el-button @click="dialogVisible=true">添加顶级菜单</el-button>
     <el-tree
-      :data="menus"
+      :data="treeData"
       :props="defaultProps"
       node-key="id"
       default-expand-all
@@ -57,27 +57,16 @@
 
 <script>
   import ajax from '@/utils/ajax'
+  import {getTreeData} from '@/utils/common'
 
   export default {
     // 组件加载时获取所有菜单信息
     mounted () {
-      let promise = ajax({
-        url: '/menus'
-      })
-      promise.then(value => {
-        this.menus = value.data
-      }, error => {
-        let response = error.response
-        this.$message({
-          message: response.data,
-          type: 'error'
-        })
-      })
+      this.listMenu()
     },
     data () {
       return {
-        // 坑爹，el-tree必须有元素
-        menus: [{}],
+        menus: [],
         defaultProps: {
           id: 'id',
           label: 'name',
@@ -88,13 +77,13 @@
         dialogTitle: '',
         formLabelWidth: '80px',
         form: {
-          parentId: '',
+          id: 0,
+          parentId: 0,
           name: '',
           href: '',
           iconClass: ''
         },
-        nodePath: '/',
-        node: null
+        nodePath: '/'
       }
     },
     watch: {
@@ -104,17 +93,31 @@
         if (!newVal) {
           this.dialogTitle = ''
           this.form = {
-            parentId: '',
+            id: 0,
+            parentId: 0,
             name: '',
             href: '',
             iconClass: ''
           }
           this.nodePath = '/'
-          this.node = null
         }
       }
     },
     methods: {
+      listMenu () {
+        let promise = ajax({
+          url: '/menus'
+        })
+        promise.then(value => {
+          this.menus = value.data
+        }, error => {
+          let response = error.response
+          this.$message({
+            message: response.data,
+            type: 'error'
+          })
+        })
+      },
       getCurrentPath (node) {
         let nodePath = ''
         while (node && node.level) {
@@ -139,7 +142,6 @@
                 click: () => {
                   this.dialogTitle = '新增菜单'
                   this.nodePath = this.getCurrentPath(node)
-                  this.node = node
                   this.form.parentId = data.id
                   this.dialogVisible = true
                 }
@@ -153,7 +155,6 @@
                 click: () => {
                   this.dialogTitle = '编辑菜单'
                   this.nodePath = this.getParentPath(node)
-                  this.node = node
                   // 复制对象，防止双向更改菜单树data
                   this.form = JSON.parse(JSON.stringify(data))
                   this.dialogVisible = true
@@ -204,19 +205,7 @@
           data: this.form
         })
         promise.then(value => {
-          let menu = value.data
-          if (!this.node) {
-            // 添加顶级节点
-            this.menus.push(menu)
-          } else {
-            let nodeData = this.node.data
-            if (!nodeData.children) {
-              // 当前父节点无子节点，初始化children
-              nodeData.children = []
-            }
-            // 添加到当前子节点中
-            nodeData.children.push(menu)
-          }
+          this.listMenu()
           this.dialogVisible = false
         }, error => {
           let response = error.response
@@ -236,11 +225,7 @@
           data: this.form
         })
         promise.then(value => {
-          // 先暂存children，更新基本属性还要初始化的
-          let children = this.node.data.children
-          // 返回的data只包含基本属性
-          this.node.data = value.data
-          this.node.data.children = children
+          this.listMenu()
           this.dialogVisible = false
         }, error => {
           let response = error.response
@@ -277,6 +262,16 @@
             type: 'error'
           })
         })
+      }
+    },
+    computed: {
+      // 计算菜单树数据，坑爹，el-tree必须有元素
+      treeData: function () {
+        let nodes = getTreeData(this.menus)
+        if (nodes.length === 0) {
+          nodes.push({})
+        }
+        return nodes
       }
     }
   }
