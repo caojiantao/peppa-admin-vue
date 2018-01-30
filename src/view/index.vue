@@ -49,17 +49,18 @@
   import SideBar from '@/components/SideBar'
   import MyHeader from '@/components/Header'
   import MyFooter from '@/components/Footer'
-  import Dictionary from '@/view/dictionary/index'
-  import Songs from '@/view/simulation/kugou/songs'
-  import Welcome from '@/view/welcome'
-
   import Menus from '@/view/security/menu'
   import Role from '@/view/security/role'
   import User from '@/view/security/user'
 
+  import Welcome from '@/view/welcome'
+  import Dictionary from '@/view/dictionary/index'
+  import Songs from '@/view/simulation/kugou/songs'
+  import Videos from '@/view/simulation/welfare/videos'
+
   export default {
     name: 'index',
-    components: {SideBar, MyHeader, MyFooter, Dictionary, Songs, Welcome, Menus, Role, User},
+    components: {SideBar, MyHeader, MyFooter, Dictionary, Songs, Welcome, Menus, Role, User, Videos},
     data () {
       return {
         tabData: this.$store.state.tabData
