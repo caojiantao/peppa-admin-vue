@@ -10,7 +10,7 @@
     <ul class="videos" v-loading="loading">
       <li v-for="post in tableData.data" :key="post.id" @click="toPlay(post.vid)">
         <div>
-          <img src="../../../assets/peppa.jpg" alt="">
+          <img :src="post.img" alt="">
           <h4>{{post.title}}</h4>
         </div>
       </li>
@@ -107,8 +107,6 @@
           this.tableData.data = result.data
           this.tableData.total = result.total
           this.loading = false
-
-          console.log(this.tableData)
         }).catch(function (error) {
           console.log(error)
           this.loading = false
