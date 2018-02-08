@@ -4,31 +4,28 @@
     <el-container direction="horizontal">
       <SideBar></SideBar>
       <el-main>
-        <el-container direction="vertical">
-          <!-- tab结合component实现动态选项卡切换组件 -->
-          <el-tabs
-            v-model="tabData.activeTabName"
-            type="card"
-            @tab-remove="removeTab">
-            <el-tab-pane
-              v-for="tab in tabData.tabs"
-              :key="tab.name"
-              :label="tab.title"
-              :name="tab.name"
-              :closable="tab.closable">
-              <component :is="tab.content"></component>
-            </el-tab-pane>
-          </el-tabs>
-        </el-container>
+        <!-- tab结合component实现动态选项卡切换组件 -->
+        <el-tabs
+          v-model="tabData.activeTabName"
+          @tab-remove="removeTab">
+          <el-tab-pane
+            v-for="tab in tabData.tabs"
+            :key="tab.name"
+            :label="tab.title"
+            :name="tab.name"
+            :closable="tab.closable">
+            <component :is="tab.content"></component>
+          </el-tab-pane>
+        </el-tabs>
       </el-main>
     </el-container>
-    <MyFooter></MyFooter>
+    <!-- <MyFooter></MyFooter> -->
   </el-container>
 </template>
 
 <style scoped>
   .el-main {
-    padding-right: 0
+    height: calc(100vh - 60px);
   }
 
   .el-header, .el-footer {
@@ -36,12 +33,6 @@
     color: #333;
     text-align: center;
     line-height: 60px;
-  }
-
-  .el-aside {
-    background-color: #D3DCE6;
-    color: #333;
-    line-height: 200px;
   }
 </style>
 

@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-header>
-      <img src="../assets/dog.png" alt="logo" class="header-logo">
+      <b>PEPPA</b>
       <ul class="header-operations">
         <li>{{user.nickname}}</li>
         <li @click="logout()">注销</li>
@@ -12,18 +12,12 @@
 
 <style scoped>
   .el-header{
-    background-color: #B3C0D1;
-    color: #333;
+    background-color: rgb(64, 158, 255);
+    color: #fff;
     line-height: 60px;
   }
 
-  .header-logo{
-    height: 80%;
-    vertical-align: middle;
-  }
-
   .header-operations{
-    height: 100%;
     float: right;
     margin: 0;
     padding-right: 1em;

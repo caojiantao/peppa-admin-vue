@@ -13,14 +13,8 @@
 
 <style scoped>
   .el-aside {
-    height: inherit;
-    color: #333;
-    border-right: 1px solid #e6e6e6;
+    height: calc(100vh - 60px);
     background-color: #D3DCE6;
-  }
-
-  .el-menu{
-    border-right: none;
   }
 </style>
 

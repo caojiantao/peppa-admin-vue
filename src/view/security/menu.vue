@@ -1,17 +1,19 @@
 <template>
-<el-container direction="vertical">
-  <el-main class="content">
-    <el-button @click="dialogVisible=true">添加顶级菜单</el-button>
-    <el-tree
-      :data="treeData"
-      :props="defaultProps"
-      node-key="id"
-      default-expand-all
-      highlight-current
-      :expand-on-click-node="false"
-      :render-content="renderContent">
-    </el-tree>
-  </el-main>
+<div>
+  <el-form inline>
+    <el-form-item>
+      <el-button @click="dialogVisible=true">添加顶级菜单</el-button>
+    </el-form-item>
+  </el-form>
+  <el-tree
+    :data="treeData"
+    :props="defaultProps"
+    node-key="id"
+    default-expand-all
+    highlight-current
+    :expand-on-click-node="false"
+    :render-content="renderContent">
+  </el-tree>
 
   <el-dialog 
     :title="dialogTitle"
@@ -36,21 +38,16 @@
       <el-button type="primary" @click="submitForm">确 定</el-button>
     </div>
   </el-dialog>
-</el-container>
+</div>
 </template>
 
 <style>
-  .content {
-    background-color: #E9EEF3;
-    color: #333;
-  }
-
   .el-tree-node__content {
     height: 40px;
   }
 
   .icon-operate{
-    margin: 0 0 0 10px;
+    margin-left: 10px;
   }
 </style>
 

@@ -1,61 +1,48 @@
 <template>
-<el-container direction="vertical">
-  <el-main class="content">
-    <el-form inline>
-      <el-form-item label="关键词">
-        <el-input v-model="keyword" placeholder="请输入关键词"></el-input>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="search">查询</el-button>
-      </el-form-item>
-    </el-form>
+<div>
+  <el-form inline>
+    <el-form-item>
+      <el-input v-model="keyword" placeholder="请输入关键词"></el-input>
+    </el-form-item>
+    <el-form-item>
+      <el-button type="primary" @click="search">查询</el-button>
+    </el-form-item>
+  </el-form>
 
-    <el-table
-      v-loading="loading"
-      :data="tableData.data">
-      <el-table-column
-        prop="FileName"
-        label="歌曲名">
-        <template slot-scope="props">
-          <el-button @click="playSong(props.row)" type="text">{{props.row.FileName}}</el-button>
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="AlbumName"
-        label="专辑">
-      </el-table-column>
-      <el-table-column
-        prop="Duration"
-        label="时长"
-        width="60"
-        :formatter="formatterDuration">
-      </el-table-column>
-    </el-table>
-    <el-pagination
-      @size-change="changeSize"
-      @current-change="changePage"
-      :current-page="tableData.page"
-      :page-size="tableData.pagesize"
-      :page-sizes="tableData.pagesizes"
-      :total="tableData.total"
-      layout="total, sizes, prev, pager, next, jumper">
-    </el-pagination>
-  </el-main>
-</el-container>
+  <el-table
+    v-loading="loading"
+    :data="tableData.data">
+    <el-table-column
+      prop="FileName"
+      label="歌曲名">
+      <template slot-scope="props">
+        <el-button @click="playSong(props.row)" type="text">{{props.row.FileName}}</el-button>
+      </template>
+    </el-table-column>
+    <el-table-column
+      prop="AlbumName"
+      label="专辑">
+    </el-table-column>
+    <el-table-column
+      prop="Duration"
+      label="时长"
+      width="100"
+      :formatter="formatterDuration">
+    </el-table-column>
+  </el-table>
+  <el-pagination
+    @size-change="changeSize"
+    @current-change="changePage"
+    :current-page="tableData.page"
+    :page-size="tableData.pagesize"
+    :page-sizes="tableData.pagesizes"
+    :total="tableData.total"
+    layout="total, sizes, prev, pager, next, jumper">
+  </el-pagination>
+</div>
 </template>
 
 <<style scoped>
-  .el-header {
-    background-color: #B3C0D1;
-    color: #333;
-    text-align: center;
-    line-height: 60px;
-  }
-  
-  .content {
-    background-color: #E9EEF3;
-    color: #333;
-  }
 </style>
 
 

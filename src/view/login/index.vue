@@ -1,8 +1,5 @@
 <template>
   <div class="login-wrapper">
-    <div class="logo">
-      <img src="../../assets/peppa.png">
-    </div>
     <el-form :model="user" ref="user" :rules="rules">
       <el-form-item prop="username">
         <el-input type="text" 
@@ -19,7 +16,7 @@
         </el-input>
       </el-form-item>
       <el-form-item>
-        <el-checkbox class="rememberMe" v-model="user.rememberMe">7天免登陆</el-checkbox>
+        <el-checkbox class="rememberMe" v-model="user.rememberMe">记住账号</el-checkbox>
       </el-form-item>
       <el-form-item>
         <el-button class="submit" type="primary" @click="submitForm('user')">登录</el-button>
@@ -100,28 +97,26 @@
 
 <style scoped>
   .login-wrapper{
-    width: 400px;
-    position: fixed;
-    left: 50%;
+    width: 100vw;
+    height: 100vh;
+    background: url('/static/login_bg.jpg') no-repeat center bottom;
+  }
+
+  .el-form{
+    width: 500px;
+    position: absolute;
     top: 50%;
-    transform: translateX(-50%) translateY(-55%);
-  }
-
-  .logo{
-    width: 100%;
-    padding: 20px;
-    box-sizing: border-box;
-  }
-
-  .logo img{
-    width: 100%;
-  }
-
-  .rememberMe{
-    float: right;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
   }
 
   .submit{
     width: 100%;
+  }
+
+  @media (max-width: 800px){
+    .el-form{
+      width: 80%;
+    }
   }
 </style>

@@ -1,45 +1,46 @@
 <template>
-<el-container direction="vertical">
-  <el-main class="content">
-    <el-form inline>
-      <el-form-item label="角色名">
-        <el-input v-model="name" placeholder="请输入角色名"></el-input>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="search">查询</el-button>
-      </el-form-item>
-    </el-form>
-    <el-button @click="addRole">添加角色</el-button>
-    <el-table
-      v-loading="loading"
-      :data="tableData.data">
-      <el-table-column
-        prop="id"
-        label="ID">
-      </el-table-column>
-      <el-table-column
-        prop="name"
-        label="角色名">
-      </el-table-column>
-      <el-table-column
-        label="操作"
-        width="100">
-        <template slot-scope="scope">
-          <el-button @click="editRole(scope.row)" type="text">编辑</el-button>
-          <el-button @click="removeRole(scope.row)" type="text">删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-    <el-pagination
-      @size-change="changeSize"
-      @current-change="changePage"
-      :current-page="tableData.page"
-      :page-size="tableData.pagesize"
-      :page-sizes="tableData.pagesizes"
-      :total="tableData.total"
-      layout="total, sizes, prev, pager, next, jumper">
-    </el-pagination>
-  </el-main>
+<div>
+  <el-form inline>
+    <el-form-item>
+      <el-input v-model="name" placeholder="请输入角色名"></el-input>
+    </el-form-item>
+    <el-form-item>
+      <el-button type="primary" @click="search">查询</el-button>
+    </el-form-item>
+    <el-form-item>
+      <el-button @click="addRole">添加角色</el-button>
+    </el-form-item>
+  </el-form>
+  
+  <el-table
+    v-loading="loading"
+    :data="tableData.data">
+    <el-table-column
+      prop="id"
+      label="ID">
+    </el-table-column>
+    <el-table-column
+      prop="name"
+      label="角色名">
+    </el-table-column>
+    <el-table-column
+      label="操作"
+      width="100">
+      <template slot-scope="scope">
+        <el-button @click="editRole(scope.row)" type="text">编辑</el-button>
+        <el-button @click="removeRole(scope.row)" type="text">删除</el-button>
+      </template>
+    </el-table-column>
+  </el-table>
+  <el-pagination
+    @size-change="changeSize"
+    @current-change="changePage"
+    :current-page="tableData.page"
+    :page-size="tableData.pagesize"
+    :page-sizes="tableData.pagesizes"
+    :total="tableData.total"
+    layout="total, sizes, prev, pager, next, jumper">
+  </el-pagination>
 
   <el-dialog 
     :title="dialogTitle"
@@ -72,15 +73,10 @@
       <el-button type="primary" @click="submitForm">确 定</el-button>
     </div>
   </el-dialog>
-</el-container>
+</div>
 </template>
 
 <style scoped>
-  
-  .content {
-    background-color: #E9EEF3;
-    color: #333;
-  }
 </style>
 
 
