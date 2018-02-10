@@ -128,6 +128,7 @@
           method: 'get'
         }).then(response => {
           let result = response.data
+          window.open('/video.html?src=' + encodeURI(result))
           console.log(result)
         }).catch(function (error) {
           console.log(error)

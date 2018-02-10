@@ -100,6 +100,7 @@
     width: 100vw;
     height: 100vh;
     background: url('/static/login_bg.jpg') no-repeat center bottom;
+    background-size: cover;
   }
 
   .el-form{
