@@ -51,15 +51,6 @@
       </template>
     </el-table-column>
   </el-table>
-  <el-pagination
-    @size-change="changeSize"
-    @current-change="changePage"
-    :current-page="tableData.page"
-    :page-size="tableData.pagesize"
-    :page-sizes="tableData.pagesizes"
-    :total="tableData.total"
-    layout="total, sizes, prev, pager, next, jumper">
-  </el-pagination>
 
   <el-dialog 
     :title="dialogTitle"
@@ -175,16 +166,6 @@
           this.loading = false
         })
       },
-      // 分页大小改变
-      changeSize (size) {
-        this.tableData.pagesize = size
-        this.search()
-      },
-      // 分页跳转
-      changePage (page) {
-        this.tableData.page = page
-        this.search()
-      },
       // 大小计算
       formatterSize (row, column, cellValue) {
         if (cellValue < 1024) {
@@ -257,8 +238,6 @@
           })
         })
       }
-    },
-    computed: {
     },
     watch: {
       // 监听弹出框状态

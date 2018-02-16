@@ -49,10 +49,11 @@
   import Songs from '@/view/simulation/kugou/songs'
   import Videos from '@/view/simulation/welfare/videos'
   import Resources from '@/view/qiniu/resources'
+  import Job from '@/view/quartz/job'
 
   export default {
     name: 'index',
-    components: {SideBar, MyHeader, MyFooter, Dictionary, Songs, Welcome, Menus, Role, User, Videos, Resources},
+    components: {SideBar, MyHeader, MyFooter, Dictionary, Songs, Welcome, Menus, Role, User, Videos, Resources, Job},
     data () {
       return {
         tabData: this.$store.state.tabData
