@@ -48,12 +48,13 @@
   import Dictionary from '@/view/dictionary/index'
   import Songs from '@/view/simulation/kugou/songs'
   import Videos from '@/view/simulation/welfare/videos'
+  import Girls from '@/view/simulation/welfare/girls'
   import Resources from '@/view/qiniu/resources'
   import Job from '@/view/quartz/job'
 
   export default {
     name: 'index',
-    components: {SideBar, MyHeader, MyFooter, Dictionary, Songs, Welcome, Menus, Role, User, Videos, Resources, Job},
+    components: {SideBar, MyHeader, MyFooter, Dictionary, Songs, Welcome, Menus, Role, User, Videos, Resources, Job, Girls},
     data () {
       return {
         tabData: this.$store.state.tabData
