@@ -66,7 +66,7 @@
     methods: {
       search () {
         this.loading = true
-        let promise = http({
+        http({
           url: '/kugou/songs',
           method: 'get',
           params: {
@@ -74,14 +74,16 @@
             page: this.tableData.page,
             pagesize: this.tableData.pagesize
           }
-        })
-        promise.then(response => {
+        }).then(response => {
           let result = response.data
           this.tableData.data = result.data
           this.tableData.total = result.total
           this.loading = false
-        }).catch(function (error) {
-          console.log(error)
+        }).catch(error => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          })
           this.loading = false
         })
       },
@@ -95,21 +97,22 @@
       },
       // 获取歌曲地址
       playSong (row) {
-        let promise = http({
+        http({
           method: 'get',
           url: '/kugou/songs/play',
           params: {
             fileHash: row.FileHash,
             albumId: row.AlbumID
           }
-        })
-        promise.then(response => {
+        }).then(response => {
           let result = response.data
           let data = result.data
           window.open(data.play_url)
-        })
-        .catch(function (error) {
-          console.log(error)
+        }).catch(error => {
+          this.$message({
+            message: error.message,
+            type: 'error'
+          })
         })
       },
       // 分页大小改变
