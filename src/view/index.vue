@@ -51,10 +51,11 @@
   import Resources from '@/view/qiniu/resources'
   import Job from '@/view/quartz/job'
   import DictSet from '@/view/system/dictionary/dictSet'
+  import DictValue from '@/view/system/dictionary/dictValue'
 
   export default {
     name: 'index',
-    components: {SideBar, MyHeader, MyFooter, Dictionary, Songs, Welcome, Menus, Role, User, Resources, Job, Girls, DictSet},
+    components: {SideBar, MyHeader, MyFooter, Dictionary, Songs, Welcome, Menus, Role, User, Resources, Job, Girls, DictSet, DictValue},
     data () {
       return {
         tabData: this.$store.state.tabData

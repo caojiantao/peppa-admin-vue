@@ -2,7 +2,7 @@
 <div>
   <el-form inline>
     <el-form-item>
-      <el-input v-model="name" placeholder="请输入字典集code"></el-input>
+      <el-input v-model="code" placeholder="请输入字典集code"></el-input>
     </el-form-item>
     <el-form-item>
       <el-button type="primary" @click="search">查询</el-button>
@@ -85,7 +85,7 @@
     },
     data () {
       return {
-        name: '',
+        code: '',
         tableData: {
           data: [],
           page: 1,
@@ -105,11 +105,12 @@
       search () {
         this.loading = true
         ajax({
-          url: '/dictionaries/listDictSetByPage',
+          url: '/dictionary/listDictSetByPage',
           method: 'get',
           params: {
             start: (this.tableData.page - 1) * this.tableData.pagesize,
-            offset: this.tableData.pagesize
+            offset: this.tableData.pagesize,
+            code: this.code
           }
         }).then(value => {
           let result = value.data
@@ -119,7 +120,7 @@
         }, error => {
           let response = error.response
           this.$message({
-            message: response.data,
+            message: response ? response.data : error.message,
             type: 'error'
           })
           this.loading = false
@@ -136,17 +137,17 @@
         this.search()
       },
       addItem () {
-        this.dialogTitle = '新增任务'
+        this.dialogTitle = '新增字典集'
         this.dialogVisible = true
       },
       editItem (item) {
-        this.dialogTitle = '编辑任务'
+        this.dialogTitle = '编辑字典集'
         this.dialogVisible = true
         // 首先获取角色基本信息
         ajax({
-          url: '/dicionaries/getDictSetById',
+          url: '/dictionary/getDictSetById',
           method: 'get',
-          data: {
+          params: {
             id: item.id
           }
         }).then(value => {
@@ -154,7 +155,7 @@
         }, error => {
           let response = error.response
           this.$message({
-            message: response.data,
+            message: response ? response.data : error.message,
             type: 'error'
           })
         })
@@ -175,7 +176,7 @@
       },
       saveItem () {
         ajax({
-          url: '/dicionaries/saveDictSet',
+          url: '/dictionary/saveDictSet',
           method: 'post',
           data: this.item
         }).then(value => {
@@ -184,14 +185,14 @@
         }, error => {
           let response = error.response
           this.$message({
-            message: response.data,
+            message: response ? response.data : error.message,
             type: 'error'
           })
         })
       },
       updateItem () {
         ajax({
-          url: '/dicionaries/updateDictSet',
+          url: '/dictionary/updateDictSet',
           method: 'post',
           data: this.item
         }).then(value => {
@@ -200,7 +201,7 @@
         }, error => {
           let response = error.response
           this.$message({
-            message: response.data,
+            message: response ? response.data : error.message,
             type: 'error'
           })
         })
@@ -212,7 +213,7 @@
           type: 'warning'
         }).then(() => {
           ajax({
-            url: '/dicionaries/removeDictSetById',
+            url: '/dictionary/removeDictSetById',
             method: 'post',
             data: {
               id: item.id
@@ -222,7 +223,7 @@
           }, error => {
             let response = error.response
             this.$message({
-              message: response.data,
+              message: response ? response.data : error.message,
               type: 'error'
             })
           })
@@ -237,6 +238,7 @@
         if (!newVal) {
           this.dialogTitle = ''
           this.item = {}
+          this.code = ''
         }
       }
     }
