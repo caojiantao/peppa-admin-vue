@@ -2,6 +2,14 @@
 <div>
   <el-form inline>
     <el-form-item>
+      <el-select v-model="setId" placeholder="请选择">
+        <el-option
+          v-for="item in dictSets"
+          :key="item.id"
+          :label="item.name"
+          :value="item.id">
+        </el-option>
+      </el-select>
     </el-form-item>
     <el-form-item>
       <el-button type="primary" @click="search">查询</el-button>
@@ -56,9 +64,16 @@
     :title="dialogTitle"
     :visible.sync="dialogVisible">
     <el-form :model="item" ref="item">
-      <!-- <el-form-item label="所属字典集" :label-width="formLabelWidth">
-        <el-input v-model="item.set.name"></el-input>
-      </el-form-item> -->
+      <el-form-item label="所属字典集" :label-width="formLabelWidth">
+        <el-select v-model="item.setId" placeholder="请选择">
+          <el-option
+            v-for="dictSet in dictSets"
+            :key="dictSet.id"
+            :label="dictSet.name"
+            :value="dictSet.id">
+          </el-option>
+        </el-select>
+      </el-form-item>
       <el-form-item label="名称" :label-width="formLabelWidth">
         <el-input v-model="item.name"></el-input>
       </el-form-item>
@@ -88,8 +103,19 @@
   import ajax from '@/utils/ajax'
 
   export default {
-    // 组件加载时获取所有菜单信息
     mounted () {
+      ajax({
+        url: '/dictionary/listDictSetOpt',
+        method: 'get'
+      }).then(value => {
+        this.dictSets = value.data
+      }, error => {
+        let response = error.response
+        this.$message({
+          message: response ? response.data : error.message,
+          type: 'error'
+        })
+      })
       this.search()
     },
     data () {
@@ -102,11 +128,12 @@
           total: 0
         },
         loading: false,
-
         dialogVisible: false,
         dialogTitle: '',
-        formLabelWidth: '80px',
-        item: {}
+        formLabelWidth: '100px',
+        item: {},
+        dictSets: [],
+        setId: ''
       }
     },
     methods: {
@@ -117,7 +144,8 @@
           method: 'get',
           params: {
             start: (this.tableData.page - 1) * this.tableData.pagesize,
-            offset: this.tableData.pagesize
+            offset: this.tableData.pagesize,
+            setId: this.setId
           }
         }).then(value => {
           let result = value.data
@@ -127,7 +155,7 @@
         }, error => {
           let response = error.response
           this.$message({
-            message: response.data,
+            message: response ? response.data : error.message,
             type: 'error'
           })
           this.loading = false
@@ -144,13 +172,12 @@
         this.search()
       },
       addItem () {
-        this.dialogTitle = '新增任务'
+        this.dialogTitle = '新增字典值'
         this.dialogVisible = true
       },
       editItem (item) {
-        this.dialogTitle = '编辑任务'
+        this.dialogTitle = '编辑字典值'
         this.dialogVisible = true
-        // 首先获取角色基本信息
         ajax({
           url: '/dictionary/getDictValueById?id=' + item.id,
           method: 'get'
@@ -159,7 +186,7 @@
         }, error => {
           let response = error.response
           this.$message({
-            message: response.data,
+            message: response ? response.data : error.message,
             type: 'error'
           })
         })
@@ -189,7 +216,7 @@
         }, error => {
           let response = error.response
           this.$message({
-            message: response.data,
+            message: response ? response.data : error.message,
             type: 'error'
           })
         })
@@ -205,13 +232,13 @@
         }, error => {
           let response = error.response
           this.$message({
-            message: response.data,
+            message: response ? response.data : error.message,
             type: 'error'
           })
         })
       },
       removeItem (item) {
-        this.$confirm('此操作将永久删除该任务, 是否继续?', '提示', {
+        this.$confirm('此操作将永久删除该项, 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
@@ -227,7 +254,7 @@
           }, error => {
             let response = error.response
             this.$message({
-              message: response.data,
+              message: response ? response.data : error.message,
               type: 'error'
             })
           })
