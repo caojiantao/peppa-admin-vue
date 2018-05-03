@@ -49,6 +49,7 @@
       <template slot-scope="scope">
         <el-button v-if="scope.row.status" @click="pause(scope.row)" type="text">停用</el-button>
         <el-button v-else @click="resume(scope.row)" type="text">启用</el-button>
+        <el-button @click="executeQuartz(scope.row)" type="text">执行</el-button>
         <el-button @click="editQuartz(scope.row)" type="text">编辑</el-button>
         <el-button @click="removeQuartz(scope.row)" type="text">删除</el-button>
       </template>
@@ -129,7 +130,7 @@
       search () {
         this.loading = true
         ajax({
-          url: '/quartzs',
+          url: '/quartz',
           method: 'get',
           params: {
             start: (this.tableData.page - 1) * this.tableData.pagesize,
@@ -168,7 +169,7 @@
         this.dialogVisible = true
         // 首先获取角色基本信息
         ajax({
-          url: '/quartzs/' + item.id,
+          url: '/quartz/' + item.id,
           method: 'get'
         }).then(value => {
           this.quartz = value.data
@@ -196,7 +197,7 @@
       },
       saveQuartz () {
         ajax({
-          url: '/quartzs',
+          url: '/quartz',
           method: 'post',
           data: this.quartz
         }).then(value => {
@@ -213,7 +214,7 @@
       updateQuartz () {
         this.quartz._method = 'put'
         ajax({
-          url: '/quartzs',
+          url: '/quartz',
           method: 'post',
           data: this.quartz
         }).then(value => {
@@ -234,13 +235,41 @@
           type: 'warning'
         }).then(() => {
           ajax({
-            url: '/quartzs/' + item.id,
+            url: '/quartz/' + item.id,
             method: 'post',
             data: {
               _method: 'delete'
             }
           }).then(value => {
             this.search()
+          }, error => {
+            let response = error.response
+            this.$message({
+              message: response.data,
+              type: 'error'
+            })
+          })
+        }).catch(() => {
+        })
+      },
+      executeQuartz (item) {
+        this.$confirm('是否立即执行该定时任务?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          ajax({
+            url: '/quartz/executeQuartzById',
+            method: 'post',
+            data: {
+              id: item.id
+            }
+          }).then(value => {
+            let data = value.data
+            this.$message({
+              message: data.msg,
+              type: data.success ? 'success' : 'error'
+            })
           }, error => {
             let response = error.response
             this.$message({
@@ -258,7 +287,7 @@
           type: 'warning'
         }).then(() => {
           ajax({
-            url: '/quartzs',
+            url: '/quartz',
             method: 'post',
             data: {
               _method: 'put',
@@ -284,7 +313,7 @@
           type: 'warning'
         }).then(() => {
           ajax({
-            url: '/quartzs',
+            url: '/quartz',
             method: 'post',
             data: {
               _method: 'put',

@@ -52,10 +52,12 @@
   import Girls from '@/view/simulation/welfare/girls'
   import Resources from '@/view/qiniu/resources'
   import Job from '@/view/quartz/job'
+  import DictSet from '@/view/system/dictionary/dictSet'
+  import DictValue from '@/view/system/dictionary/dictValue'
 
   export default {
     name: 'index',
-    components: {SideBar, MyHeader, MyFooter, Dictionary, Songs, Welcome, Menus, Role, User, Videos, Resources, Job, Girls, Mv},
+    components: {SideBar, MyHeader, MyFooter, Dictionary, Songs, Welcome, Menus, Role, User, Resources, Job, Girls, Mv, DictSet, DictValue},
     data () {
       return {
         tabData: this.$store.state.tabData
