@@ -47,6 +47,7 @@
   import Welcome from '@/view/welcome'
   import Dictionary from '@/view/dictionary/index'
   import Songs from '@/view/simulation/kugou/songs'
+  import Mv from '@/view/simulation/kugou/mv'
   import Videos from '@/view/simulation/welfare/videos'
   import Girls from '@/view/simulation/welfare/girls'
   import Resources from '@/view/qiniu/resources'
@@ -54,7 +55,7 @@
 
   export default {
     name: 'index',
-    components: {SideBar, MyHeader, MyFooter, Dictionary, Songs, Welcome, Menus, Role, User, Videos, Resources, Job, Girls},
+    components: {SideBar, MyHeader, MyFooter, Dictionary, Songs, Welcome, Menus, Role, User, Videos, Resources, Job, Girls, Mv},
     data () {
       return {
         tabData: this.$store.state.tabData
