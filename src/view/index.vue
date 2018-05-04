@@ -48,7 +48,6 @@
   import Dictionary from '@/view/dictionary/index'
   import Songs from '@/view/simulation/kugou/songs'
   import Mv from '@/view/simulation/kugou/mv'
-  import Videos from '@/view/simulation/welfare/videos'
   import Girls from '@/view/simulation/welfare/girls'
   import Resources from '@/view/qiniu/resources'
   import Job from '@/view/quartz/job'

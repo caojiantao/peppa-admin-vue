@@ -6,7 +6,7 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
   state: {
     // 不用登录拦截地址列表
-    excludeCheckLoginPaths: ['/login'],
+    excludeCheckLoginPaths: ['/login', '/video', '/audio'],
     tabData: {
       activeTabName: 'welcome',
       tabs: [{

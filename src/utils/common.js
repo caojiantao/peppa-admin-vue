@@ -59,4 +59,20 @@ const formatterDate = (date, pattern) => {
   return pattern
 }
 
-export {getTreeData, formatterDate}
+const getParam = function (name) {
+  let qs = location.href.substring(location.href.indexOf('?') + 1)
+  let items = qs.length ? qs.split('&') : []
+  let item = null
+  let len = items.length
+  for (var i = 0; i < len; i++) {
+    item = items[i].split('=')
+    let key = item[0]
+    let value = decodeURIComponent(item[1])
+    if (key === name) {
+      return value
+    }
+  }
+  return null
+}
+
+export {getTreeData, formatterDate, getParam}

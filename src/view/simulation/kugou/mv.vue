@@ -13,13 +13,13 @@
     class="mv_wrapper"
     v-loading="loading"
     :data="mvs">
-    <li v-for="item in mvs">
+    <li v-bind:key="item.hash" v-for="item in mvs">
       <div class="mv_container">
-        <a :href="item.link" class="mv_cover">
+        <a :href="item.link" class="mv_cover" target="_blank">
           <img :src="item.cover" alt="">
         </a>
-        <a :href="item.link" class="mv_name">{{item.title}}</a>
-        <span class="mv_singer" @click="playMv(item)">{{item.singer}}</span>
+        <a :href="item.link" class="mv_name" target="_blank">{{item.title}}</a>
+        <span class="mv_singer">{{item.singer}}</span>
       </div>
     </li>
   </ul>
@@ -112,7 +112,7 @@
             let item = result.data[i]
             this.mvs.push({
               cover: 'http://imge.kugou.com/mvhdpic/240/' + item.Pic.substring(0, 8) + '/' + item.Pic,
-              hash: item.MvHash,
+              link: '/video?hash=' + item.MvHash,
               title: item.MvName,
               singer: item.SingerName
             })
@@ -121,23 +121,6 @@
         }).catch(error => {
           console.log(error)
           this.loading = false
-        })
-      },
-      // 获取歌曲地址
-      playMv (row) {
-        let promise = http({
-          method: 'get',
-          url: '/kugou/mvs/play',
-          params: {
-            hash: row.hash
-          }
-        })
-        promise.then(response => {
-          let result = response.data
-          console.log(result)
-        })
-        .catch(function (error) {
-          console.log(error)
         })
       },
       // 分页大小改变
