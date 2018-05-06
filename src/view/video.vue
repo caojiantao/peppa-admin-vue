@@ -79,7 +79,7 @@
           data.push({
             hash: mvdata[name].hash,
             label: label,
-            url: 'http://localhost:8080/files?src=' + encodeURIComponent(mvdata[name].downurl)
+            url: mvdata[name].downurl
           })
         }
         return data
