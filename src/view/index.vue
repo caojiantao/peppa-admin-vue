@@ -37,26 +37,42 @@
 </style>
 
 <script>
-  import SideBar from '@/components/SideBar'
-  import MyHeader from '@/components/Header'
-  import MyFooter from '@/components/Footer'
-  import Menus from '@/view/security/menu'
-  import Role from '@/view/security/role'
-  import User from '@/view/security/user'
+  // import SideBar from '@/components/SideBar'
+  // import MyHeader from '@/components/Header'
+  // import MyFooter from '@/components/Footer'
+  // import Menus from '@/view/security/menu'
+  // import Role from '@/view/security/role'
+  // import User from '@/view/security/user'
 
-  import Welcome from '@/view/welcome'
-  import Dictionary from '@/view/dictionary/index'
-  import Songs from '@/view/simulation/kugou/songs'
-  import Mv from '@/view/simulation/kugou/mv'
-  import Girls from '@/view/simulation/welfare/girls'
-  import Resources from '@/view/qiniu/resources'
-  import Job from '@/view/quartz/job'
-  import DictSet from '@/view/system/dictionary/dictSet'
-  import DictValue from '@/view/system/dictionary/dictValue'
+  // import Welcome from '@/view/welcome'
+  // import Dictionary from '@/view/dictionary/index'
+  // import Songs from '@/view/simulation/kugou/songs'
+  // import Mv from '@/view/simulation/kugou/mv'
+  // import Girls from '@/view/simulation/welfare/girls'
+  // import Resources from '@/view/qiniu/resources'
+  // import Job from '@/view/quartz/job'
+  // import DictSet from '@/view/system/dictionary/dictSet'
+  // import DictValue from '@/view/system/dictionary/dictValue'
 
   export default {
     name: 'index',
-    components: {SideBar, MyHeader, MyFooter, Dictionary, Songs, Welcome, Menus, Role, User, Resources, Job, Girls, Mv, DictSet, DictValue},
+    components: {
+      SideBar: () => import('@/components/SideBar'),
+      MyHeader: () => import('@/components/Header'),
+      MyFooter: () => import('@/components/Footer'),
+      Dictionary: () => import('@/view/dictionary/index'),
+      Songs: () => import('@/view/simulation/kugou/songs'),
+      Welcome: () => import('@/view/welcome'),
+      Menus: () => import('@/view/security/menu'),
+      Role: () => import('@/view/security/role'),
+      User: () => import('@/view/security/user'),
+      Resources: () => import('@/view/qiniu/resources'),
+      Job: () => import('@/view/quartz/job'),
+      Girls: () => import('@/view/simulation/welfare/girls'),
+      Mv: () => import('@/view/simulation/kugou/mv'),
+      DictSet: () => import('@/view/system/dictionary/dictSet'),
+      DictValue: () => import('@/view/system/dictionary/dictValue')
+    },
     data () {
       return {
         tabData: this.$store.state.tabData
