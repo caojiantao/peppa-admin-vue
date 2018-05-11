@@ -24,16 +24,6 @@
   import {getUserId} from '@/utils/auth'
   import {getTreeData} from '@/utils/common'
 
-  /**
-   * 获取菜单信息
-   */
-  function listMenu () {
-    return ajax({
-      url: '/users/' + getUserId() + '/menus',
-      method: 'get'
-    })
-  }
-
   export default {
     data () {
       return {
@@ -41,8 +31,10 @@
       }
     },
     created: function () {
-      let promise = listMenu()
-      promise.then(value => {
+      ajax({
+        url: '/users/' + getUserId() + '/menus',
+        method: 'get'
+      }).then(value => {
         this.menus = value.data
       }, error => {
         let response = error.response
