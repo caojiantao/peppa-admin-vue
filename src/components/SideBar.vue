@@ -22,20 +22,28 @@
   import ajax from '@/utils/ajax'
   import MyMenu from '@/components/Menu'
   import {getUserId} from '@/utils/auth'
-  import {getTreeData} from '@/utils/common'
+  import {getTreeData, getBreadcrumb} from '@/utils/common'
 
   export default {
     data () {
       return {
-        menus: []
+        menus: [],
+        menuMap: {}
       }
     },
-    created: function () {
+    beforeCreate: function () {
       ajax({
         url: '/users/' + getUserId() + '/menus',
         method: 'get'
       }).then(value => {
-        this.menus = value.data
+        let menus = value.data
+        let menuMap = {}
+        for (let i in menus) {
+          menuMap[menus[i].id] = menus[i]
+        }
+        this.menuMap = menuMap
+        this.$store.commit('setBreadcrumbs', getBreadcrumb(this.$route.path, menuMap))
+        this.menus = menus
       }, error => {
         let response = error.response
         this.$message({
@@ -54,6 +62,11 @@
       // 计算菜单树数据
       treeData: function () {
         return getTreeData(this.menus)
+      }
+    },
+    watch: {
+      '$route': function (to, cur) {
+        this.$store.commit('setBreadcrumbs', getBreadcrumb(to.path, this.menuMap))
       }
     }
   }

@@ -34,7 +34,7 @@
           </el-form>
         </div>
       </div>
-      <div class="copyright">Copyright © 2017 - 2018 <a href="http://caojiantao.com">Jiantao Cao</a>. All Rights Reserved.</div>
+      <div class="copyright">Copyright © 2017 - 2018 <a href="http://caojiantao.com">Tao</a>. All Rights Reserved.</div>
     </div>
   </div>
 </template>

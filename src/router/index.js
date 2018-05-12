@@ -13,9 +13,9 @@ export default new Router({
       path: '/',
       component: index,
       children: [
-        {path: 'system/security/menus', component: resolve => require(['@/view/security/menu'], resolve)},
-        {path: 'system/security/roles', component: resolve => require(['@/view/security/role'], resolve)},
-        {path: 'system/security/users', component: resolve => require(['@/view/security/user'], resolve)},
+        {path: 'system/security/menus', component: resolve => require(['@/view/system/security/menu'], resolve)},
+        {path: 'system/security/roles', component: resolve => require(['@/view/system/security/role'], resolve)},
+        {path: 'system/security/users', component: resolve => require(['@/view/system/security/user'], resolve)},
         {path: 'system/dictionary/sets', component: resolve => require(['@/view/system/dictionary/dictSet'], resolve)},
         {path: 'system/dictionary/values', component: resolve => require(['@/view/system/dictionary/dictValue'], resolve)},
         {path: 'system/quartz/jobs', component: resolve => require(['@/view/quartz/job'], resolve)},

@@ -16,7 +16,6 @@
     methods: {
       // 选择最底层菜单节点
       selectItem (menu) {
-        console.log(menu)
         this.$router.push({
           path: menu.href
         })

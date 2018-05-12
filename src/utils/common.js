@@ -75,4 +75,27 @@ const getParam = function (name) {
   return null
 }
 
-export {getTreeData, formatterDate, getParam}
+const getBreadcrumb = function (path, menus) {
+  let menuId
+  for (let i in menus) {
+    if (menus[i].href === path) {
+      menuId = menus[i].id
+      break
+    }
+  }
+  let breads = []
+  if (menuId) {
+    initBreadcrumb(breads, menus, menuId)
+  }
+  return breads
+}
+
+const initBreadcrumb = function (breadcrumbs, menus, menuId) {
+  let menu = menus[menuId]
+  if (menu) {
+    breadcrumbs.splice(0, 0, menu)
+    initBreadcrumb(breadcrumbs, menus, menu.parentId)
+  }
+}
+
+export {getTreeData, formatterDate, getParam, getBreadcrumb}
