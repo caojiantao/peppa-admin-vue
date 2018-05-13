@@ -38,12 +38,16 @@
 </style>
 
 <script>
+  import SideBar from '@/components/SideBar'
+  import MyHeader from '@/components/Header'
+  import Breadcrumb from '@/components/Breadcrumb'
+
   export default {
     name: 'index',
     components: {
-      SideBar: () => import('@/components/SideBar'),
-      MyHeader: () => import('@/components/Header'),
-      Breadcrumb: () => import('@/components/Breadcrumb')
+      SideBar,
+      MyHeader,
+      Breadcrumb
     },
     data () {
       return {

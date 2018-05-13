@@ -1,37 +1,34 @@
-import Vue from 'vue'
-import Router from 'vue-router'
-import login from '@/view/login/index'
-import index from '@/view/index'
-import video from '@/view/video'
+// import Vue from 'vue'
+import VueRouter from 'vue-router'
 
-Vue.use(Router)
+// Vue.use(VueRouter)
 
-export default new Router({
+export default new VueRouter({
   mode: 'history',
   routes: [
     {
       path: '/',
-      component: index,
+      component: () => import('@/view/index'),
       children: [
-        {path: 'system/security/menus', component: resolve => require(['@/view/system/security/menu'], resolve)},
-        {path: 'system/security/roles', component: resolve => require(['@/view/system/security/role'], resolve)},
-        {path: 'system/security/users', component: resolve => require(['@/view/system/security/user'], resolve)},
-        {path: 'system/dictionary/sets', component: resolve => require(['@/view/system/dictionary/dictSet'], resolve)},
-        {path: 'system/dictionary/values', component: resolve => require(['@/view/system/dictionary/dictValue'], resolve)},
-        {path: 'system/quartz/jobs', component: resolve => require(['@/view/quartz/job'], resolve)},
-        {path: 'spider/kugou/songs', component: resolve => require(['@/view/spider/kugou/song'], resolve)},
-        {path: 'spider/kugou/mvs', component: resolve => require(['@/view/spider/kugou/mv'], resolve)},
-        {path: 'welfare/girls', component: resolve => require(['@/view/spider/welfare/girl'], resolve)},
-        {path: 'resource/qiniu', component: resolve => require(['@/view/resource/qiniu'], resolve)}
+        {path: 'system/security/menus', component: () => import('@/view/system/security/menu')},
+        {path: 'system/security/roles', component: () => import('@/view/system/security/role')},
+        {path: 'system/security/users', component: () => import('@/view/system/security/user')},
+        {path: 'system/dictionary/sets', component: () => import('@/view/system/dictionary/dictSet')},
+        {path: 'system/dictionary/values', component: () => import('@/view/system/dictionary/dictValue')},
+        {path: 'system/quartz/jobs', component: () => import('@/view/quartz/job')},
+        {path: 'spider/kugou/songs', component: () => import('@/view/spider/kugou/song')},
+        {path: 'spider/kugou/mvs', component: () => import('@/view/spider/kugou/mv')},
+        {path: 'welfare/girls', component: () => import('@/view/spider/welfare/girl')},
+        {path: 'resource/qiniu', component: () => import('@/view/resource/qiniu')}
       ]
     },
     {
       path: '/login',
-      component: login
+      component: () => import('@/view/login/index')
     },
     {
       path: '/video',
-      component: video
+      component: () => import('@/view/video')
     }
   ]
 })
