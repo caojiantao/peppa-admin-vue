@@ -1,27 +1,35 @@
 <template>
 <div class="container">
-  <div>
-    <el-select v-model="fileUrl" placeholder="请选择分辨率">
-      <el-option
-        v-for="item in videoData"
-        :key="item.hash"
-        :label="item.label"
-        :value="item.url">
-      </el-option>
-    </el-select>
-  </div>
+  <h2>{{video.singer + '-' + video.songname}}</h2>
+  <el-form :inline="true" :model="formInline" class="demo-form-inline">
+    <el-form-item label="分辨率">
+      <el-select v-model="fileUrl" placeholder="请选择">
+        <el-option
+          v-for="item in videoData"
+          :key="item.hash"
+          :label="item.label"
+          :value="item.url">
+        </el-option>
+      </el-select>
+    </el-form-item>
+  </el-form>
   <video :src="fileUrl" controls></video>
 </div>
 </template>
 
 <style scoped>
   .container {
-    width: 1200px;
     margin: 0 auto;
   }
 
   video {
     max-width: 100%;
+  }
+
+  @media screen and ( min-width: 1200px ) {
+    .container {
+      width: 1200px;
+    }
   }
 </style>
 
@@ -50,7 +58,6 @@
           }
         }).then(response => {
           this.video = response.data
-          console.log(response.data)
         }).catch(function (error) {
           console.log(error)
         })
