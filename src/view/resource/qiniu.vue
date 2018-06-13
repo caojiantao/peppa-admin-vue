@@ -18,7 +18,8 @@
       <el-button type="primary" @click="search">查询</el-button>
     </el-form-item>
     <el-form-item>
-      <el-button @click="openUpload">文件上传</el-button>
+      <el-button @click="localDialogVisible=true">本地上传</el-button>
+      <el-button @click="onlineDialogVisible=true">在线上传</el-button>
     </el-form-item>
   </el-form>
   
@@ -53,8 +54,8 @@
   </el-table>
 
   <el-dialog 
-    :title="dialogTitle"
-    :visible.sync="dialogVisible">
+    title="本地上传"
+    :visible.sync="localDialogVisible">
     <el-form :model="form" ref="file">
       <el-form-item>
         <b>设置路径前缀</b>
@@ -74,7 +75,25 @@
       </el-upload>
     </el-form>
     <div slot="footer" class="dialog-footer">
-      <el-button @click="dialogVisible=false">取 消</el-button>
+      <el-button @click="localDialogVisible=false">取 消</el-button>
+    </div>
+  </el-dialog>
+
+  <el-dialog 
+    title="在线上传"
+    :visible.sync="onlineDialogVisible">
+    <el-form :model="onlineForm" ref="onlineFile" label-width="80px">
+      <el-form-item label="资源地址">
+        <el-input v-model="onlineForm.src"></el-input>
+      </el-form-item>
+      <el-form-item label="文件名称">
+        <el-input v-model="onlineForm.key"></el-input>
+      </el-form-item>
+      <el-progress :text-inside="true" :stroke-width="18" :percentage="70"></el-progress>
+    </el-form>
+    <div slot="footer" class="dialog-footer">
+      <el-button @click="uploadOnlineFile">上 传</el-button>
+      <el-button @click="onlineDialogVisible=false">取 消</el-button>
     </div>
   </el-dialog>
 </div>
@@ -107,11 +126,15 @@
         },
         loading: false,
 
-        dialogVisible: false,
-        dialogTitle: '',
+        localDialogVisible: false,
         fileList: [],
         form: {
           prefix: ''
+        },
+        onlineDialogVisible: false,
+        onlineForm: {
+          src: '',
+          key: ''
         }
       }
     },
@@ -208,11 +231,26 @@
         }).catch(() => {
         })
       },
-      openUpload () {
+      openLocalUpload () {
         this.dialogTitle = '上传文件'
         this.dialogVisible = true
-
-        console.log(this.form)
+      },
+      uploadOnlineFile () {
+        http({
+          url: '/qiniu/buckets/' + this.curBucket + '/files',
+          method: 'post',
+          data: {
+            src: this.onlineForm.src,
+            key: this.onlineForm.key
+          }
+        }).then(value => {
+        }, error => {
+          let response = error.response
+          this.$message({
+            message: response.data,
+            type: 'error'
+          })
+        })
       },
       uploadFile (item) {
         let data = new FormData()
@@ -229,7 +267,6 @@
           },
           data: data
         }).then(value => {
-          this.search()
         }, error => {
           let response = error.response
           this.$message({
@@ -241,14 +278,22 @@
     },
     watch: {
       // 监听弹出框状态
-      dialogVisible (newVal, oldVal) {
+      localDialogVisible (newVal, oldVal) {
         // 弹出框关闭初始化form数据
         if (!newVal) {
-          this.dialogTitle = ''
           this.form = {
             prefix: ''
           }
           this.fileList = []
+        }
+      },
+      onlineDialogVisible (newVal, oldVal) {
+        // 弹出框关闭初始化form数据
+        if (!newVal) {
+          this.onlineForm = {
+            src: '',
+            key: ''
+          }
         }
       }
     }
