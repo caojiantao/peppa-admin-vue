@@ -43,14 +43,6 @@
   import ajax from '@/utils/ajax'
   import {saveToken} from '@/utils/auth'
 
-  function login (user) {
-    return ajax({
-      method: 'post',
-      url: '/session',
-      data: user
-    })
-  }
-
   export default {
     data () {
       const valAcc = (rule, value, callback) => {
@@ -85,13 +77,24 @@
       submitForm (formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            let promise = login(this.user)
-            promise.then(value => {
-              // 根据记住状态设置token存储位置
-              let token = value.data.token
-              let userId = value.data.userId
-              saveToken(token, userId, this.user.rememberMe)
-              this.$router.push('/')
+            ajax({
+              method: 'post',
+              url: '/session',
+              data: this.user
+            }).then(value => {
+              let result = value.data
+              if (result.success) {
+                // 根据记住状态设置token存储位置
+                let token = result.data.token
+                let userId = result.data.userId
+                saveToken(token, userId, this.user.rememberMe)
+                this.$router.push('/')
+              } else {
+                this.$message({
+                  message: result.msg,
+                  type: 'error'
+                })
+              }
             }, error => {
               let response = error.response
               this.$message({
@@ -100,7 +103,6 @@
               })
             })
           } else {
-            console.log('登录表单校验不通过！')
             return false
           }
         })

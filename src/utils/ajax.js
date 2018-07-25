@@ -43,10 +43,11 @@ service.interceptors.response.use(
     return response
   },
   error => {
-    // 统一api异常处理，记得抛出error，让各自的promise处理
-    // window.localStorage.clear()
-    // window.sessionStorage.clear()
-    throw error
+    // 可以下级处理
+    this.$message({
+      message: error,
+      type: 'error'
+    })
   }
 )
 

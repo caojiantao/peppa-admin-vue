@@ -36,25 +36,22 @@
         url: '/users/' + getUserId() + '/menus',
         method: 'get'
       }).then(value => {
-        let menus = value.data
-        let menuMap = {}
-        for (let i in menus) {
-          menuMap[menus[i].id] = menus[i]
-        }
-        this.menuMap = menuMap
-        this.$store.commit('setBreadcrumbs', getBreadcrumb(this.$route.path, menuMap))
-        this.menus = menus
-      }, error => {
-        let response = error.response
-        this.$message({
-          message: response.data,
-          type: 'error',
-          duration: 2000,
-          onClose: function (message) {
-            // $router.push('/login')
-            console.log(message)
+        let result = value.data
+        if (result.success) {
+          let menus = result.data
+          let menuMap = {}
+          for (let i in menus) {
+            menuMap[menus[i].id] = menus[i]
           }
-        })
+          this.menuMap = menuMap
+          this.$store.commit('setBreadcrumbs', getBreadcrumb(this.$route.path, menuMap))
+          this.menus = menus
+        } else {
+          this.$message({
+            message: result.msg,
+            type: 'error'
+          })
+        }
       })
     },
     components: {MyMenu},
