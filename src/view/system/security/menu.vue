@@ -16,25 +16,28 @@
   </el-tree>
 
   <el-dialog 
-    :title="dialogTitle"
-    :visible.sync="dialogVisible">
-    <el-form :model="form" ref="menu">
-      <el-form-item label="路径" :label-width="formLabelWidth">
-        <el-input v-model="form.parentId" style="display:none;"></el-input>
-        <el-input v-model="nodePath" disabled></el-input>
+    :title="dialogModel.title"
+    :visible.sync="dialogModel.visible">
+    <el-form :model="dialogModel.form" ref="menu" label-width="80px">
+      <el-form-item label="路径">
+        <el-input v-model="dialogModel.form.parentId" style="display:none;"></el-input>
+        <el-input v-model="dialogModel.form.nodePath" disabled></el-input>
       </el-form-item>
-      <el-form-item label="名称" :label-width="formLabelWidth">
-        <el-input v-model="form.name"></el-input>
+      <el-form-item label="名称">
+        <el-input v-model="dialogModel.form.name"></el-input>
       </el-form-item>
-      <el-form-item label="地址" :label-width="formLabelWidth">
-        <el-input v-model="form.href"></el-input>
+      <el-form-item label="地址">
+        <el-input v-model="dialogModel.form.href"></el-input>
       </el-form-item>
-      <el-form-item label="iconClass" :label-width="formLabelWidth">
-        <el-input v-model="form.iconClass"></el-input>
+      <el-form-item label="iconClass">
+        <el-input v-model="dialogModel.form.iconClass"></el-input>
+      </el-form-item>
+      <el-form-item label="排序">
+        <el-input v-model="dialogModel.form.order"></el-input>
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
-      <el-button @click="dialogVisible=false">取 消</el-button>
+      <el-button @click="dialogModel.visible=false">取 消</el-button>
       <el-button type="primary" @click="submitForm">确 定</el-button>
     </div>
   </el-dialog>
@@ -69,50 +72,46 @@
           label: 'name',
           children: 'children'
         },
-
-        dialogVisible: false,
-        dialogTitle: '',
-        formLabelWidth: '80px',
-        form: {
-          id: 0,
-          parentId: 0,
-          name: '',
-          href: '',
-          iconClass: ''
-        },
-        nodePath: '/'
+        dialogModel: this.getInitDialogModel()
       }
     },
     watch: {
       // 监听弹出框状态
-      dialogVisible (newVal, oldVal) {
-        // 弹出框关闭初始化form数据
-        if (!newVal) {
-          this.dialogTitle = ''
-          this.form = {
-            id: 0,
-            parentId: 0,
-            name: '',
-            href: '',
-            iconClass: ''
-          }
-          this.nodePath = '/'
+      'dialogModel.visible' (val) {
+        // 弹出框关闭初始化对话框数据
+        if (!val) {
+          this.dialogModel = this.getInitDialogModel()
         }
       }
     },
     methods: {
+      getInitDialogModel () {
+        return {
+          title: '',
+          visible: false,
+          form: {
+            id: 0,
+            parentId: 0,
+            name: '',
+            href: '',
+            iconClass: '',
+            nodePath: '/'
+          }
+        }
+      },
       listMenu () {
-        let promise = ajax({
-          url: '/menus'
-        })
-        promise.then(value => {
-          this.menus = value.data
-        }, error => {
-          let response = error.response
-          this.$message({
-            message: response.data,
-            type: 'error'
-          })
+        ajax({
+          url: '/system/security/menus'
+        }).then(value => {
+          let result = value.data
+          if (result.success) {
+            this.menus = result.data
+          } else {
+            this.$message({
+              message: result.msg,
+              type: 'error'
+            })
+          }
         })
       },
       getCurrentPath (node) {
@@ -137,10 +136,14 @@
               },
               on: {
                 click: () => {
-                  this.dialogTitle = '新增菜单'
-                  this.nodePath = this.getCurrentPath(node)
-                  this.form.parentId = data.id
-                  this.dialogVisible = true
+                  Object.assign(this.dialogModel, {
+                    title: '新增菜单',
+                    visible: true,
+                    form: {
+                      parentId: data.id,
+                      nodePath: this.getCurrentPath(node)
+                    }
+                  })
                 }
               }
             }),
@@ -150,11 +153,25 @@
               },
               on: {
                 click: () => {
-                  this.dialogTitle = '编辑菜单'
-                  this.nodePath = this.getParentPath(node)
-                  // 复制对象，防止双向更改菜单树data
-                  this.form = JSON.parse(JSON.stringify(data))
-                  this.dialogVisible = true
+                  ajax({
+                    url: '/system/security/menus/' + data.id,
+                    method: 'get'
+                  }).then(value => {
+                    let result = value.data
+                    if (result.success) {
+                      Object.assign(this.dialogModel, {
+                        title: '编辑菜单',
+                        visible: true,
+                        form: result.data
+                      })
+                      this.$set(this.dialogModel.form, 'nodePath', this.getParentPath(node))
+                    } else {
+                      this.$message({
+                        message: result.msg,
+                        type: 'error'
+                      })
+                    }
+                  })
                 }
               }
             }),
@@ -183,81 +200,49 @@
       submitForm () {
         this.$refs['menu'].validate((valid) => {
           if (valid) {
-            if (this.form.id) {
-              this.updateMenu()
-            } else {
-              this.saveMenu()
-            }
+            this.saveMenu()
           } else {
-            console.log('登录表单校验不通过！')
             return false
           }
         })
       },
       // 新增菜单
       saveMenu () {
-        let promise = ajax({
-          url: '/menus',
+        ajax({
+          url: '/system/security/menus',
           method: 'post',
-          data: this.form
-        })
-        promise.then(value => {
-          this.listMenu()
-          this.dialogVisible = false
-        }, error => {
-          let response = error.response
-          this.$message({
-            message: response.data,
-            type: 'error'
-          })
-        })
-      },
-      // 更新菜单
-      updateMenu () {
-        delete this.form.children
-        this.form._method = 'put'
-        let promise = ajax({
-          url: '/menus',
-          method: 'post',
-          data: this.form
-        })
-        promise.then(value => {
-          this.listMenu()
-          this.dialogVisible = false
-        }, error => {
-          let response = error.response
-          this.$message({
-            message: response.data,
-            type: 'error'
-          })
+          data: this.dialogModel.form
+        }).then(value => {
+          let result = value.data
+          if (result.success) {
+            this.dialogModel.visible = false
+            this.listMenu()
+          } else {
+            this.$message({
+              message: result.msg,
+              type: 'error'
+            })
+          }
         })
       },
       // 删除菜单
       removeMenu (id) {
-        let promise = ajax({
-          url: '/menus/' + id,
+        ajax({
+          url: '/system/security/menus/delete',
           method: 'post',
           data: {
-            _method: 'delete'
+            id: id
           }
-        })
-        promise.then(value => {
-          let childNodes = this.node.parent.childNodes
-          let index
-          // 记得移除当前项
-          for (let i = 0; i < childNodes.length; i++) {
-            if (id === childNodes[i].data.id) {
-              index = i
-              break
-            }
+        }).then(value => {
+          let result = value.data
+          if (result.success) {
+            this.listMenu()
+          } else {
+            this.$message({
+              message: result.msg,
+              type: 'error'
+            })
           }
-          childNodes.splice(index, 1)
-        }, error => {
-          let response = error.response
-          this.$message({
-            message: response.data,
-            type: 'error'
-          })
         })
       }
     },

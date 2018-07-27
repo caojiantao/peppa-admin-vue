@@ -2,8 +2,7 @@
   <el-breadcrumb separator-class="el-icon-arrow-right" v-if="breadcrumbs.length > 0">
     <el-breadcrumb-item
       v-for="item in breadcrumbs"
-      key="item.id"
-      >
+      :key="item.id">
       {{item.name}}
     </el-breadcrumb-item>
   </el-breadcrumb>

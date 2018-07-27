@@ -4,14 +4,6 @@
     <el-container direction="horizontal">
       <SideBar></SideBar>
       <el-main>
-        <!-- <el-breadcrumb separator-class="el-icon-arrow-right" v-if="breadcrumbs.length > 0">
-          <el-breadcrumb-item
-            v-for="item in breadcrumbs"
-            key="item.id"
-            >
-            {{item.name}}
-          </el-breadcrumb-item>
-        </el-breadcrumb> -->
         <Breadcrumb></Breadcrumb>
        <router-view/>
       </el-main>

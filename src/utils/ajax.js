@@ -2,8 +2,7 @@
  * 后台restFul接口请求工具，例如登录校验，菜单权限
  */
 import axios from 'axios'
-
-axios.defaults.withCredentials = true
+import qs from 'qs'
 
 // 创建axios实例
 const service = axios.create({
@@ -11,16 +10,9 @@ const service = axios.create({
   timeout: 60000,
   // axios默认原生ajax请求request payload，贼难解析，通过修改content-type，并且转换data达到要求
   headers: {
-    'Content-Type': 'application/x-www-form-urlencoded'
-  },
-  withCredentials: false,
-  transformRequest: [data => {
-    let result = ''
-    for (let it in data) {
-      result += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
-    }
-    return result.substr(0, result.length - 1)
-  }]
+    'X-Requested-With': 'XMLHttpRequest',
+    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+  }
 })
 
 // request拦截器
@@ -31,6 +23,9 @@ service.interceptors.request.use(config => {
   }
   if (token) {
     config.headers['X-Token'] = token
+  }
+  if (config.method === 'post' && config.headers['Content-Type'] === 'application/x-www-form-urlencoded;charset=UTF-8') {
+    config.data = qs.stringify(config.data)
   }
   return config
 }, error => {

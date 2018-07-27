@@ -8,6 +8,9 @@ const getTreeData = (datas) => {
       nodes.push(node)
     }
   }
+  if (nodes.length === 0) {
+    nodes.push({})
+  }
   return nodes
 }
 

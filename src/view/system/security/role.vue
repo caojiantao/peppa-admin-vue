@@ -2,7 +2,7 @@
 <div>
   <el-form inline>
     <el-form-item>
-      <el-input v-model="name" placeholder="请输入角色名"></el-input>
+      <el-input v-model="query.name" placeholder="请输入角色名"></el-input>
     </el-form-item>
     <el-form-item>
       <el-button type="primary" @click="search">查询</el-button>
@@ -13,7 +13,7 @@
   </el-form>
   
   <el-table
-    v-loading="loading"
+    v-loading="tableData.loading"
     :data="tableData.data">
     <el-table-column
       prop="id"
@@ -43,14 +43,14 @@
   </el-pagination>
 
   <el-dialog 
-    :title="dialogTitle"
-    :visible.sync="dialogVisible"
-    width="70%">
+    :title="dialogModel.title"
+    :visible.sync="dialogModel.visible"
+    width="30%">
     <el-row>
       <el-col :span="12"> 
-        <el-form :model="form" ref="role">
-          <el-form-item label="名称" :label-width="formLabelWidth">
-            <el-input v-model="form.name"></el-input>
+        <el-form :model="dialogModel.form" ref="role" label-width="80px">
+          <el-form-item label="名称">
+            <el-input v-model="dialogModel.form.name"></el-input>
           </el-form-item>
         </el-form>
       </el-col>
@@ -69,7 +69,7 @@
       </el-col>
     </el-row>
     <div slot="footer" class="dialog-footer">
-      <el-button @click="dialogVisible=false">取 消</el-button>
+      <el-button @click="dialogModel.visible=false">取 消</el-button>
       <el-button type="primary" @click="submitForm">确 定</el-button>
     </div>
   </el-dialog>
@@ -92,53 +92,57 @@
     },
     data () {
       return {
-        name: '',
+        query: {
+          name: ''
+        },
         tableData: {
+          loading: false,
           data: [],
           page: 1,
           pagesize: 10,
           pagesizes: [10, 20, 50],
           total: 0
         },
-        loading: false,
-
-        dialogVisible: false,
-        dialogTitle: '',
-        formLabelWidth: '80px',
-        form: {
-        },
-        menus: [],
+        dialogModel: this.getInitDialogModel(),
         defaultProps: {
           id: 'id',
           label: 'name',
           children: 'children'
-        }
+        },
+        treeData: {},
+        leafMenuIds: []
       }
     },
     methods: {
+      getInitDialogModel () {
+        return {
+          title: '',
+          visible: false,
+          form: {}
+        }
+      },
       search () {
-        this.loading = true
-        let promise = ajax({
-          url: '/roles',
-          method: 'get',
-          params: {
-            name: this.name,
-            start: (this.tableData.page - 1) * this.tableData.pagesize,
-            offset: this.tableData.pagesize
-          }
+        Object.assign(this.query, {
+          start: (this.tableData.page - 1) * this.tableData.pagesize,
+          offset: this.tableData.pagesize
         })
-        promise.then(value => {
+        ajax({
+          url: '/system/security/roles',
+          method: 'get',
+          params: this.query
+        }).then(value => {
           let result = value.data
-          this.tableData.data = result.data
-          this.tableData.total = result.total
-          this.loading = false
-        }, error => {
-          let response = error.response
-          this.$message({
-            message: response.data,
-            type: 'error'
-          })
-          this.loading = false
+          if (result.success) {
+            result = result.data
+            this.tableData.data = result.data
+            this.tableData.total = result.total
+            this.tableData.loading = false
+          } else {
+            this.$message({
+              message: result.msg,
+              type: 'error'
+            })
+          }
         })
       },
       // 分页大小改变
@@ -152,118 +156,100 @@
         this.search()
       },
       addRole () {
-        this.dialogTitle = '新增角色'
-        this.dialogVisible = true
+        this.dialogModel = {
+          title: '新增角色',
+          visible: true,
+          form: {}
+        }
       },
       editRole (item) {
-        this.dialogTitle = '编辑角色'
-        this.dialogVisible = true
         // 首先获取角色基本信息
         ajax({
-          url: '/roles/' + item.id,
+          url: '/system/security/roles/' + item.id,
           method: 'get'
         }).then(value => {
-          this.form = value.data
-        }, error => {
-          let response = error.response
-          this.$message({
-            message: response.data,
-            type: 'error'
-          })
-        })
-        // 然后获取角色对应菜单信息
-        ajax({
-          url: '/roles/' + item.id + '/menus',
-          method: 'get'
-        }).then(value => {
-          let checkedKeys = []
-          let menus = value.data
-          for (let i in menus) {
-            let hasChild = false
-            for (let j in menus) {
-              if (menus[i].id === menus[j].parentId) {
-                hasChild = true
-                break
+          let result = value.data
+          if (result.success) {
+            let data = result.data
+            // 展示对话框
+            this.dialogModel = {
+              title: '编辑角色',
+              visible: true,
+              form: data.role
+            }
+            // 注意放在对话框展示的后面，并且采用下属写法避免undefined
+            this.$nextTick(() => {
+              let checkedKeys = []
+              if (data.menus) {
+                for (let i in data.menus) {
+                  // 计算需要选中的叶子节点
+                  if (this.leafMenuIds.indexOf(data.menus[i].id) !== -1) {
+                    checkedKeys.push(data.menus[i].id)
+                  }
+                }
               }
-            }
-            if (!hasChild) {
-              checkedKeys.push(menus[i].id)
-            }
+              this.$refs.tree.setCheckedKeys(checkedKeys)
+            })
+          } else {
+            this.$message({
+              message: result.msg,
+              type: 'error'
+            })
           }
-          this.$refs.tree.setCheckedKeys(checkedKeys)
-        }, error => {
-          let response = error.response
-          this.$message({
-            message: response.data,
-            type: 'error'
-          })
         })
       },
       // 获取所有菜单信息
       listMenu () {
-        let promise = ajax({
-          url: '/menus',
+        ajax({
+          url: '/system/security/menus',
           method: 'get'
-        })
-        promise.then(value => {
-          this.menus = value.data
-        }, error => {
-          let response = error.response
-          this.$message({
-            message: response.data,
-            type: 'error'
-          })
+        }).then(value => {
+          let result = value.data
+          if (result.success) {
+            let menus = result.data
+            this.treeData = getTreeData(menus)
+            // 递归设置叶子节点，方便树节点选中叶子节点
+            for (let i in this.treeData) {
+              this.setLeafMenuId(this.treeData[i], this.leafMenuIds)
+            }
+          } else {
+            this.$message({
+              message: result.msg,
+              type: 'error'
+            })
+          }
         })
       },
       submitForm () {
         this.$refs['role'].validate((valid) => {
           if (valid) {
-            if (this.form.id) {
-              this.updateRole()
-            } else {
-              this.saveRole()
-            }
+            this.saveRole()
           } else {
-            console.log('登录表单校验不通过！')
             return false
           }
         })
       },
       saveRole () {
-        this.form.menuIds = this.$refs.tree.getCheckedKeys().join()
-        let promise = ajax({
-          url: '/roles',
+        ajax({
+          url: '/system/security/roles',
           method: 'post',
-          data: this.form
-        })
-        promise.then(value => {
-          this.dialogVisible = false
-          this.search()
-        }, error => {
-          let response = error.response
-          this.$message({
-            message: response.data,
-            type: 'error'
-          })
-        })
-      },
-      updateRole () {
-        this.form.menuIds = this.$refs.tree.getCheckedKeys().join()
-        this.form._method = 'put'
-        let promise = ajax({
-          url: '/roles',
-          method: 'post',
-          data: this.form
-        })
-        promise.then(value => {
-          this.dialogVisible = false
-          this.search()
-        }, error => {
-          let response = error.response
-          this.$message({
-            message: response.data,
-            type: 'error'
-          })
+          data: {
+            // role: this.dialogModel.form,
+            'role.id': 8,
+            'role.name': '测试'
+            // menuIds: this.$refs.tree.getCheckedKeys().join() + ',' + this.$refs.tree.getHalfCheckedKeys().join()
+          }
+        }).then(value => {
+          let result = value.data
+          if (result.success) {
+            this.dialogModel = this.getInitDialogModel()
+            this.search()
+          } else {
+            this.$message({
+              message: result.msg,
+              type: 'error'
+            })
+          }
         })
       },
       removeRole (item) {
@@ -273,32 +259,33 @@
           type: 'warning'
         }).then(() => {
           ajax({
-            url: '/roles/' + item.id,
+            url: '/system/security/roles/' + item.id,
             method: 'post',
             data: {
               _method: 'delete'
             }
           }).then(value => {
-            this.search()
-          }, error => {
-            let response = error.response
-            this.$message({
-              message: response.data,
-              type: 'error'
-            })
+            let result = value.data
+            if (result.success) {
+              this.search()
+            } else {
+              this.$message({
+                message: result.msg,
+                type: 'error'
+              })
+            }
           })
         }).catch(() => {
         })
-      }
-    },
-    computed: {
-      // 计算菜单树数据，坑爹，el-tree必须有元素
-      treeData: function () {
-        let nodes = getTreeData(this.menus)
-        if (nodes.length === 0) {
-          nodes.push({})
+      },
+      setLeafMenuId (node, menuIds) {
+        if (node.children && node.children.length > 0) {
+          for (let i in node.children) {
+            this.setLeafMenuId(node.children[i], menuIds)
+          }
+        } else {
+          menuIds.push(node.id)
         }
-        return nodes
       }
     },
     watch: {
