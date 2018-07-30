@@ -1,8 +1,8 @@
 <template>
 <div>
-  <el-form inline>
+  <el-form :model="query" inline>
     <el-form-item>
-      <el-input v-model="username" placeholder="请输入用户名"></el-input>
+      <el-input v-model="query.username" placeholder="请输入用户名"></el-input>
     </el-form-item>
     <el-form-item>
       <el-button type="primary" @click="search">查询</el-button>
@@ -12,7 +12,7 @@
     </el-form-item>
   </el-form>
   <el-table
-    v-loading="loading"
+    v-loading="tableData.loading"
     :data="tableData.data">
     <el-table-column
       prop="id"
@@ -31,7 +31,7 @@
       width="100">
       <template slot-scope="scope">
         <el-button @click="editUser(scope.row)" type="text">编辑</el-button>
-        <el-button @click="removeUser(scope.row)" type="text">删除</el-button>
+        <el-button @click="deleteUser(scope.row)" type="text">删除</el-button>
       </template>
     </el-table-column>
   </el-table>
@@ -46,25 +46,26 @@
   </el-pagination>
 
   <el-dialog 
-    :title="dialogTitle"
-    :visible.sync="dialogVisible">
+    :title="dialogModel.title"
+    :visible.sync="dialogModel.visible"
+    :close-on-click-modal=false>
     <el-row>
       <el-col :span="10"> 
-        <el-form :model="user" ref="user">
-          <el-form-item label="用户名" :label-width="formLabelWidth">
-            <el-input v-model="user.username"></el-input>
+        <el-form :model="dialogModel.form" ref="user" label-width="80px">
+          <el-form-item label="用户名">
+            <el-input v-model="dialogModel.form.username"></el-input>
           </el-form-item>
-          <el-form-item label="昵称" :label-width="formLabelWidth">
-            <el-input v-model="user.nickname"></el-input>
+          <el-form-item label="昵称">
+            <el-input v-model="dialogModel.form.nickname"></el-input>
           </el-form-item>
-          <el-form-item label="密码" :label-width="formLabelWidth">
-            <el-input v-model="user.password" placeholder="仅当需要修改时填写"></el-input>
+          <el-form-item label="密码">
+            <el-input v-model="dialogModel.form.password" placeholder="仅当需要修改时填写" type="password"></el-input>
           </el-form-item>
         </el-form>
       </el-col>
       <el-col :span="14">
         <el-transfer 
-          v-model="userRoleIds" 
+          v-model="dialogModel.form.roleIds" 
           :data="roles"
           :props="{
             key: 'id',
@@ -75,7 +76,7 @@
       </el-col>
     </el-row>
     <div slot="footer" class="dialog-footer">
-      <el-button @click="dialogVisible=false">取 消</el-button>
+      <el-button @click="dialogModel.visible=false">取 消</el-button>
       <el-button type="primary" @click="submitForm">确 定</el-button>
     </div>
   </el-dialog>
@@ -93,67 +94,74 @@
     // 组件加载时获取所有菜单信息
     mounted () {
       this.search()
-      this.listRoles()
+      this.getRoles()
     },
     data () {
       return {
-        username: '',
+        query: {
+          username: ''
+        },
         tableData: {
+          loading: false,
+          data: [],
           page: 1,
           pagesize: 10,
           pagesizes: [10, 20, 50],
-          data: [],
           total: 0
         },
-        loading: false,
-
-        dialogVisible: false,
-        dialogTitle: '',
-        formLabelWidth: '80px',
-        user: {},
-        userRoleIds: [],
-        roles: null
+        dialogModel: this.getInitDialogModel(),
+        roles: []
       }
     },
     methods: {
-      listRoles () {
+      getInitDialogModel () {
+        return {
+          title: '',
+          visible: false,
+          form: {
+            roleIds: []
+          }
+        }
+      },
+      getRoles () {
         ajax({
-          url: '/roles',
+          url: '/system/security/role/getRoles',
           method: 'get'
         }).then(value => {
           let result = value.data
-          this.roles = result.data
-        }, error => {
-          let response = error.response
-          this.$message({
-            message: response.data,
-            type: 'error'
-          })
+          if (result.success) {
+            this.roles = result.data
+          } else {
+            this.$message({
+              message: result.msg,
+              type: 'error'
+            })
+          }
         })
       },
       search () {
-        this.loading = true
-        let promise = ajax({
-          url: '/users',
-          method: 'get',
-          params: {
-            username: this.username,
-            start: (this.tableData.page - 1) * this.tableData.pagesize,
-            offset: this.tableData.pagesize
-          }
+        this.tableData.loading = true
+        Object.assign(this.query, {
+          start: (this.tableData.page - 1) * this.tableData.pagesize,
+          offset: this.tableData.pagesize
         })
-        promise.then(value => {
+        ajax({
+          url: '/system/security/user/getUserPageData',
+          method: 'get',
+          params: this.query
+        }).then(value => {
           let result = value.data
-          this.tableData.data = result.data
-          this.tableData.total = result.total
-          this.loading = false
-        }, error => {
-          let response = error.response
-          this.$message({
-            message: response.data,
-            type: 'error'
-          })
-          this.loading = false
+          if (result.success) {
+            result = result.data
+            this.tableData.data = result.data
+            this.tableData.total = result.total
+            this.tableData.loading = false
+          } else {
+            this.$message({
+              message: result.msg,
+              type: 'error'
+            })
+          }
         })
       },
       // 分页大小改变
@@ -167,129 +175,96 @@
         this.search()
       },
       addUser () {
-        this.dialogTitle = '新增用户'
-        this.dialogVisible = true
+        this.dialogModel = {
+          title: '新增角色',
+          visible: true,
+          form: {}
+        }
       },
       editUser (item) {
-        this.dialogTitle = '编辑用户'
-        this.dialogVisible = true
         // 首先获取用户基本信息
         ajax({
-          url: '/users/' + item.id,
-          method: 'get'
-        }).then(value => {
-          this.user = value.data
-          this.user.password = ''
-        }, error => {
-          let response = error.response
-          this.$message({
-            message: response.data,
-            type: 'error'
-          })
-        })
-        // 然后获取用户对应角色信息
-        ajax({
-          url: '/users/' + item.id + '/roles',
-          method: 'get'
-        }).then(value => {
-          let roles = value.data
-          for (let index in roles) {
-            this.userRoleIds.push(roles[index].id)
+          url: '/system/security/user/getUserWithRoleIdsByUserId',
+          method: 'get',
+          params: {
+            id: item.id
           }
-        }, error => {
-          let response = error.response
-          this.$message({
-            message: response.data,
-            type: 'error'
-          })
+        }).then(value => {
+          let result = value.data
+          if (result.success) {
+            Object.assign(this.dialogModel, {
+              title: '编辑用户',
+              visible: true,
+              form: result.data
+            })
+          } else {
+            this.$message({
+              message: result.msg,
+              type: 'error'
+            })
+          }
         })
       },
       submitForm () {
         this.$refs['user'].validate((valid) => {
           if (valid) {
-            if (this.user.id) {
-              this.updateUser()
-            } else {
-              this.saveUser()
-            }
+            this.saveUser()
           } else {
-            console.log('登录表单校验不通过！')
             return false
           }
         })
       },
       saveUser () {
-        // 角色ID集合
-        this.user.roleIds = this.userRoleIds.join()
+        // 手动数组join赋值
+        this.dialogModel.form.roleIds = this.dialogModel.form.roleIds.join()
         ajax({
-          url: '/users',
+          url: '/system/security/user/saveUser',
           method: 'post',
-          data: this.user
+          data: this.dialogModel.form
         }).then(value => {
-          this.dialogVisible = false
-          this.search()
-        }, error => {
-          let response = error.response
-          this.$message({
-            message: response.data,
-            type: 'error'
-          })
+          let result = value.data
+          if (result.success) {
+            this.dialogModel.visible = false
+            this.search()
+          } else {
+            this.$message({
+              message: result.msg,
+              type: 'error'
+            })
+          }
         })
       },
-      updateUser () {
-        // 角色ID集合
-        this.user.roleIds = this.userRoleIds
-        this.user._method = 'put'
-        ajax({
-          url: '/users',
-          method: 'post',
-          data: this.user
-        }).then(value => {
-          this.dialogVisible = false
-          this.search()
-        }, error => {
-          let response = error.response
-          this.$message({
-            message: response.data,
-            type: 'error'
-          })
-        })
-      },
-      removeUser (user) {
+      deleteUser (item) {
         this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
           ajax({
-            url: '/users/' + user.id,
+            url: '/system/security/users/deleteUserById',
             method: 'post',
             data: {
-              _method: 'delete'
+              id: item.id
             }
           }).then(value => {
-            this.search()
-          }, error => {
-            let response = error.response
-            this.$message({
-              message: response.data,
-              type: 'error'
-            })
+            let result = value.data
+            if (result.success) {
+              this.search()
+            } else {
+              this.$message({
+                message: result.msg,
+                type: 'error'
+              })
+            }
           })
-        }).catch(() => {
         })
       }
     },
-    computed: {
-    },
     watch: {
       // 监听弹出框状态
-      dialogVisible (newVal, oldVal) {
-        // 弹出框关闭初始化form数据
-        if (!newVal) {
-          this.dialogTitle = ''
-          this.user = {}
-          this.userRoleIds = []
+      'dialogModel.visible' (v) {
+        if (!v) {
+          this.dialogModel = this.getInitDialogModel()
         }
       }
     }

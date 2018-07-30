@@ -62,7 +62,7 @@
   export default {
     // 组件加载时获取所有菜单信息
     mounted () {
-      this.listMenu()
+      this.getMenus()
     },
     data () {
       return {
@@ -99,9 +99,9 @@
           }
         }
       },
-      listMenu () {
+      getMenus () {
         ajax({
-          url: '/system/security/menus'
+          url: '/system/security/menu/getMenus'
         }).then(value => {
           let result = value.data
           if (result.success) {
@@ -154,7 +154,10 @@
               on: {
                 click: () => {
                   ajax({
-                    url: '/system/security/menus/' + data.id,
+                    url: '/system/security/menu/getMenuById',
+                    params: {
+                      id: data.id
+                    },
                     method: 'get'
                   }).then(value => {
                     let result = value.data
@@ -209,14 +212,14 @@
       // 新增菜单
       saveMenu () {
         ajax({
-          url: '/system/security/menus',
+          url: '/system/security/menu/saveMenu',
           method: 'post',
           data: this.dialogModel.form
         }).then(value => {
           let result = value.data
           if (result.success) {
             this.dialogModel.visible = false
-            this.listMenu()
+            this.getMenus()
           } else {
             this.$message({
               message: result.msg,
@@ -228,7 +231,7 @@
       // 删除菜单
       removeMenu (id) {
         ajax({
-          url: '/system/security/menus/delete',
+          url: '/system/security/menu/deleteMenuById',
           method: 'post',
           data: {
             id: id
@@ -236,7 +239,7 @@
         }).then(value => {
           let result = value.data
           if (result.success) {
-            this.listMenu()
+            this.getMenus()
           } else {
             this.$message({
               message: result.msg,

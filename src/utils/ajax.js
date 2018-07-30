@@ -25,7 +25,8 @@ service.interceptors.request.use(config => {
     config.headers['X-Token'] = token
   }
   if (config.method === 'post' && config.headers['Content-Type'] === 'application/x-www-form-urlencoded;charset=UTF-8') {
-    config.data = qs.stringify(config.data)
+    // 需要转换数据格式，注意allowDots使用小数点形式，方便后台接收
+    config.data = qs.stringify(config.data, {allowDots: true})
   }
   return config
 }, error => {

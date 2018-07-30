@@ -33,8 +33,11 @@
     },
     beforeCreate: function () {
       ajax({
-        url: '/users/' + getUserId() + '/menus',
-        method: 'get'
+        url: '/system/security/menu/getMenusByUserId',
+        method: 'get',
+        params: {
+          userId: getUserId()
+        }
       }).then(value => {
         let result = value.data
         if (result.success) {

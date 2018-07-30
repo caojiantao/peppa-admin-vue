@@ -45,6 +45,7 @@
   <el-dialog 
     :title="dialogModel.title"
     :visible.sync="dialogModel.visible"
+    :close-on-click-modal=false
     width="30%">
     <el-row>
       <el-col :span="12"> 
@@ -88,7 +89,7 @@
     // 组件加载时获取所有菜单信息
     mounted () {
       this.search()
-      this.listMenu()
+      this.getMenus()
     },
     data () {
       return {
@@ -127,7 +128,7 @@
           offset: this.tableData.pagesize
         })
         ajax({
-          url: '/system/security/roles',
+          url: '/system/security/role/getRolePageData',
           method: 'get',
           params: this.query
         }).then(value => {
@@ -165,8 +166,11 @@
       editRole (item) {
         // 首先获取角色基本信息
         ajax({
-          url: '/system/security/roles/' + item.id,
-          method: 'get'
+          url: '/system/security/role/getRoleWithMenusById',
+          method: 'get',
+          params: {
+            id: item.id
+          }
         }).then(value => {
           let result = value.data
           if (result.success) {
@@ -175,7 +179,7 @@
             this.dialogModel = {
               title: '编辑角色',
               visible: true,
-              form: data.role
+              form: data
             }
             // 注意放在对话框展示的后面，并且采用下属写法避免undefined
             this.$nextTick(() => {
@@ -199,9 +203,9 @@
         })
       },
       // 获取所有菜单信息
-      listMenu () {
+      getMenus () {
         ajax({
-          url: '/system/security/menus',
+          url: '/system/security/menu/getMenus',
           method: 'get'
         }).then(value => {
           let result = value.data
@@ -231,18 +235,16 @@
       },
       saveRole () {
         ajax({
-          url: '/system/security/roles',
+          url: '/system/security/role/saveRole',
           method: 'post',
           data: {
-            // role: this.dialogModel.form,
-            'role.id': 8,
-            'role.name': '测试'
-            // menuIds: this.$refs.tree.getCheckedKeys().join() + ',' + this.$refs.tree.getHalfCheckedKeys().join()
+            role: this.dialogModel.form,
+            menuIds: this.$refs.tree.getCheckedKeys().join() + ',' + this.$refs.tree.getHalfCheckedKeys().join()
           }
         }).then(value => {
           let result = value.data
           if (result.success) {
-            this.dialogModel = this.getInitDialogModel()
+            this.dialogModel.visible = false
             this.search()
           } else {
             this.$message({
@@ -259,10 +261,10 @@
           type: 'warning'
         }).then(() => {
           ajax({
-            url: '/system/security/roles/' + item.id,
+            url: '/system/security/role/deleteRoleById',
             method: 'post',
             data: {
-              _method: 'delete'
+              id: item.id
             }
           }).then(value => {
             let result = value.data
@@ -275,9 +277,9 @@
               })
             }
           })
-        }).catch(() => {
         })
       },
+      // 设置叶子节点
       setLeafMenuId (node, menuIds) {
         if (node.children && node.children.length > 0) {
           for (let i in node.children) {
@@ -290,11 +292,9 @@
     },
     watch: {
       // 监听弹出框状态
-      dialogVisible (newVal, oldVal) {
-        // 弹出框关闭初始化form数据
-        if (!newVal) {
-          this.dialogTitle = ''
-          this.form = {}
+      'dialogModel.visible' (v) {
+        if (!v) {
+          this.dialogModel = this.getInitDialogModel()
           this.$refs.tree.setCheckedKeys([])
         }
       }

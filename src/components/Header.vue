@@ -40,18 +40,22 @@
 
   export default{
     mounted () {
-      let promise = ajax({
-        url: '/users/' + getUserId(),
-        method: 'get'
-      })
-      promise.then(value => {
-        this.user = value.data
-      }, error => {
-        let response = error.response
-        this.$message({
-          message: response.data,
-          type: 'error'
-        })
+      ajax({
+        url: '/system/security/user/getUserById',
+        method: 'get',
+        params: {
+          id: getUserId()
+        }
+      }).then(value => {
+        let result = value.data
+        if (result.success) {
+          this.user = result.data
+        } else {
+          this.$message({
+            message: result.msg,
+            type: 'error'
+          })
+        }
       })
     },
     data () {
