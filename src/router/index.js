@@ -8,8 +8,10 @@ export default new VueRouter({
   routes: [
     {
       path: '/',
+      redirect: '/welcome',
       component: () => import('@/view/index'),
       children: [
+        {path: '/welcome', component: () => import('@/view/welcome')},
         {path: '/system/security/menus', component: () => import('@/view/system/security/menu')},
         {path: '/system/security/roles', component: () => import('@/view/system/security/role')},
         {path: '/system/security/users', component: () => import('@/view/system/security/user')},

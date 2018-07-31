@@ -55,7 +55,7 @@
             type: 'error'
           })
         }
-      })
+      }).catch(() => {})
     },
     components: {MyMenu},
     computed: {

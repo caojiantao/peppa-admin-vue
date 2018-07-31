@@ -56,7 +56,7 @@
             type: 'error'
           })
         }
-      })
+      }).catch(() => {})
     },
     data () {
       return {

@@ -1,5 +1,6 @@
 // import Vue from 'vue'
 import Vuex from 'vuex'
+import router from '@/router/index'
 
 // Vue.use(Vuex)
 
@@ -13,6 +14,11 @@ const store = new Vuex.Store({
   mutations: {
     setBreadcrumbs (state, breadcrumbs) {
       state.breadcrumbs = breadcrumbs
+    },
+    logout () {
+      window.localStorage.clear()
+      window.sessionStorage.clear()
+      router.push('/login')
     }
   }
 })

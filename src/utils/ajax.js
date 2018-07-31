@@ -3,6 +3,7 @@
  */
 import axios from 'axios'
 import qs from 'qs'
+import store from '@/store/index'
 
 // 创建axios实例
 const service = axios.create({
@@ -39,11 +40,16 @@ service.interceptors.response.use(
     return response
   },
   error => {
-    // 可以下级处理
-    this.$message({
-      message: error,
-      type: 'error'
-    })
+    let response = error.response
+    switch (response.status) {
+      case 401:
+        store.commit('logout')
+        break
+      default:
+        break
+    }
+    // 抛给下级处理
+    throw error
   }
 )
 

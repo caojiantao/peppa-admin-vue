@@ -48,8 +48,9 @@
   <el-dialog 
     :title="dialogModel.title"
     :visible.sync="dialogModel.visible"
-    :close-on-click-modal=false>
-    <el-row>
+    :close-on-click-modal=false
+    width="950px">
+    <el-row :gutter="20">
       <el-col :span="10"> 
         <el-form :model="dialogModel.form" ref="user" label-width="80px">
           <el-form-item label="用户名">
@@ -58,8 +59,13 @@
           <el-form-item label="昵称">
             <el-input v-model="dialogModel.form.nickname"></el-input>
           </el-form-item>
-          <el-form-item label="密码">
-            <el-input v-model="dialogModel.form.password" placeholder="仅当需要修改时填写" type="password"></el-input>
+          <el-form-item label="修改密码">
+            <el-switch
+              v-model="dialogModel.form.modifyPassword">
+            </el-switch>
+          </el-form-item>
+          <el-form-item label="密码" v-if="dialogModel.form.modifyPassword">
+            <el-input v-model="dialogModel.form.password" placeholder="请输入密码" type="password"></el-input>
           </el-form-item>
         </el-form>
       </el-col>
@@ -119,6 +125,7 @@
           title: '',
           visible: false,
           form: {
+            modifyPassword: false,
             roleIds: []
           }
         }
@@ -256,7 +263,7 @@
                 type: 'error'
               })
             }
-          })
+          }).catch(() => {})
         })
       }
     },

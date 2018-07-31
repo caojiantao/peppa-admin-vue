@@ -234,13 +234,11 @@
         })
       },
       saveRole () {
+        this.dialogModel.form.menuIds = this.$refs.tree.getCheckedKeys().join() + ',' + this.$refs.tree.getHalfCheckedKeys().join()
         ajax({
           url: '/system/security/role/saveRole',
           method: 'post',
-          data: {
-            role: this.dialogModel.form,
-            menuIds: this.$refs.tree.getCheckedKeys().join() + ',' + this.$refs.tree.getHalfCheckedKeys().join()
-          }
+          data: this.dialogModel.form
         }).then(value => {
           let result = value.data
           if (result.success) {
