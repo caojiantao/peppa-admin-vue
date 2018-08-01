@@ -2,7 +2,7 @@
 <div>
   <el-form inline>
     <el-form-item>
-      <el-button @click="dialogVisible=true">添加顶级菜单</el-button>
+      <el-button @click="dialogModel.visible=true">添加顶级菜单</el-button>
     </el-form-item>
   </el-form>
   <el-tree

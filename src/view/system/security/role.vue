@@ -123,6 +123,7 @@
         }
       },
       search () {
+        this.tableData.loading = true
         Object.assign(this.query, {
           start: (this.tableData.page - 1) * this.tableData.pagesize,
           offset: this.tableData.pagesize

@@ -2,7 +2,7 @@
 <div>
   <el-form inline>
     <el-form-item>
-      <el-input v-model="code" placeholder="请输入字典集code"></el-input>
+      <el-input v-model="query.code" placeholder="请输入字典集code"></el-input>
     </el-form-item>
     <el-form-item>
       <el-button type="primary" @click="search">查询</el-button>
@@ -13,7 +13,7 @@
   </el-form>
   
   <el-table
-    v-loading="loading"
+    v-loading="tableData.loading"
     :data="tableData.data">
     <el-table-column
       prop="id"
@@ -50,21 +50,30 @@
   </el-pagination>
 
   <el-dialog 
-    :title="dialogTitle"
-    :visible.sync="dialogVisible">
-    <el-form :model="item" ref="item">
+    :title="dialogModel.title"
+    :visible.sync="dialogModel.visible"
+    :close-on-click-modal=false>
+    <el-form :model="dialogModel.form" ref="item" label-width="80px">
       <el-form-item label="CODE" :label-width="formLabelWidth">
-        <el-input v-model="item.code"></el-input>
+        <el-input v-model="dialogModel.form.code"></el-input>
       </el-form-item>
       <el-form-item label="名称" :label-width="formLabelWidth">
-        <el-input v-model="item.name"></el-input>
+        <el-input v-model="dialogModel.form.name"></el-input>
       </el-form-item>
       <el-form-item label="描述" :label-width="formLabelWidth">
-        <el-input v-model="item.desc"></el-input>
+        <el-input v-model="dialogModel.form.desc"></el-input>
+      </el-form-item>
+      <el-form-item label="字典联动">
+        <el-switch
+          v-model="dialogModel.form.link">
+        </el-switch>
+      </el-form-item>
+      <el-form-item label="字典值" v-if="dialogModel.form.link">
+        <el-input v-model="dialogModel.form.parentValueId"></el-input>
       </el-form-item>
     </el-form>
     <div slot="footer" class="dialog-footer">
-      <el-button @click="dialogVisible=false">取 消</el-button>
+      <el-button @click="dialogModel.visible=false">取 消</el-button>
       <el-button type="primary" @click="submitForm">确 定</el-button>
     </div>
   </el-dialog>
@@ -85,46 +94,56 @@
     },
     data () {
       return {
-        code: '',
+        query: {
+          code: ''
+        },
+        dialogModel: this.getInitDialogModel(),
         tableData: {
+          loading: false,
           data: [],
           page: 1,
           pagesize: 10,
           pagesizes: [10, 20, 50],
           total: 0
-        },
-        loading: false,
-
-        dialogVisible: false,
-        dialogTitle: '',
-        formLabelWidth: '80px',
-        item: {}
+        }
       }
     },
     methods: {
+      getInitDialogModel () {
+        return {
+          title: '',
+          visible: false,
+          form: {
+            // 字典联动
+            link: false,
+            parentValueId: 0
+          }
+        }
+      },
       search () {
-        this.loading = true
+        this.tableData.loading = true
+        Object.assign(this.query, {
+          start: (this.tableData.page - 1) * this.tableData.pagesize,
+          offset: this.tableData.pagesize
+        })
         ajax({
           url: '/dictionary/listDictSetByPage',
           method: 'get',
-          params: {
-            start: (this.tableData.page - 1) * this.tableData.pagesize,
-            offset: this.tableData.pagesize,
-            code: this.code
-          }
+          params: this.query
         }).then(value => {
           let result = value.data
-          this.tableData.data = result.data
-          this.tableData.total = result.total
-          this.loading = false
-        }, error => {
-          let response = error.response
-          this.$message({
-            message: response ? response.data : error.message,
-            type: 'error'
-          })
-          this.loading = false
-        })
+          if (result.success) {
+            result = result.data
+            this.tableData.data = result.data
+            this.tableData.total = result.total
+            this.tableData.loading = false
+          } else {
+            this.$message({
+              message: result.msg,
+              type: 'error'
+            })
+          }
+        }).catch(() => {})
       },
       // 分页大小改变
       changeSize (size) {
@@ -137,12 +156,13 @@
         this.search()
       },
       addItem () {
-        this.dialogTitle = '新增字典集'
-        this.dialogVisible = true
+        this.dialogModel = {
+          title: '新增字典集',
+          visible: true,
+          form: {}
+        }
       },
       editItem (item) {
-        this.dialogTitle = '编辑字典集'
-        this.dialogVisible = true
         // 首先获取角色基本信息
         ajax({
           url: '/dictionary/getDictSetById',
@@ -151,25 +171,31 @@
             id: item.id
           }
         }).then(value => {
-          this.item = value.data
-        }, error => {
-          let response = error.response
-          this.$message({
-            message: response ? response.data : error.message,
-            type: 'error'
-          })
-        })
+          let result = value.data
+          if (result.success) {
+            let data = result.data
+            // 初始化字典集父字典值
+            if (data.parentValueId) {
+              data.link = true
+            }
+            this.dialogModel = {
+              title: '编辑字典集',
+              visible: true,
+              form: data
+            }
+          } else {
+            this.$message({
+              message: result.msg,
+              type: 'error'
+            })
+          }
+        }).catch(() => {})
       },
       submitForm () {
         this.$refs['item'].validate((valid) => {
           if (valid) {
-            if (this.item.id) {
-              this.updateItem()
-            } else {
-              this.saveItem()
-            }
+            this.saveItem()
           } else {
-            console.log('登录表单校验不通过！')
             return false
           }
         })
@@ -178,33 +204,19 @@
         ajax({
           url: '/dictionary/saveDictSet',
           method: 'post',
-          data: this.item
+          data: this.dialogModel.form
         }).then(value => {
-          this.dialogVisible = false
-          this.search()
-        }, error => {
-          let response = error.response
-          this.$message({
-            message: response ? response.data : error.message,
-            type: 'error'
-          })
-        })
-      },
-      updateItem () {
-        ajax({
-          url: '/dictionary/updateDictSet',
-          method: 'post',
-          data: this.item
-        }).then(value => {
-          this.dialogVisible = false
-          this.search()
-        }, error => {
-          let response = error.response
-          this.$message({
-            message: response ? response.data : error.message,
-            type: 'error'
-          })
-        })
+          let result = value.data
+          if (result.success) {
+            this.dialogModel.visible = false
+            this.search()
+          } else {
+            this.$message({
+              message: result.msg,
+              type: 'error'
+            })
+          }
+        }).catch(() => {})
       },
       removeItem (item) {
         this.$confirm('此操作将永久删除该项, 是否继续?', '提示', {
@@ -219,26 +231,24 @@
               id: item.id
             }
           }).then(value => {
-            this.search()
-          }, error => {
-            let response = error.response
-            this.$message({
-              message: response ? response.data : error.message,
-              type: 'error'
-            })
-          })
-        }).catch(() => {
+            let result = value.data
+            if (result.success) {
+              this.search()
+            } else {
+              this.$message({
+                message: result.msg,
+                type: 'error'
+              })
+            }
+          }).catch(() => {})
         })
       }
     },
     watch: {
       // 监听弹出框状态
-      dialogVisible (newVal, oldVal) {
-        // 弹出框关闭初始化form数据
-        if (!newVal) {
-          this.dialogTitle = ''
-          this.item = {}
-          this.code = ''
+      'dialogModel.visible' (v) {
+        if (!v) {
+          this.dialogModel = this.getInitDialogModel()
         }
       }
     }
