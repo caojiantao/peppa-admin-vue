@@ -127,7 +127,7 @@
           offset: this.tableData.pagesize
         })
         ajax({
-          url: '/dictionary/listDictSetByPage',
+          url: '/system/dictionary/dictSet/listDictSetPageData',
           method: 'get',
           params: this.query
         }).then(value => {
@@ -165,7 +165,7 @@
       editItem (item) {
         // 首先获取角色基本信息
         ajax({
-          url: '/dictionary/getDictSetById',
+          url: '/system/dictionary/dictSet/getDictSetById',
           method: 'get',
           params: {
             id: item.id
@@ -202,7 +202,7 @@
       },
       saveItem () {
         ajax({
-          url: '/dictionary/saveDictSet',
+          url: '/system/dictionary/dictSet/saveDictSet',
           method: 'post',
           data: this.dialogModel.form
         }).then(value => {
@@ -225,7 +225,7 @@
           type: 'warning'
         }).then(() => {
           ajax({
-            url: '/dictionary/removeDictSetById',
+            url: '/system/dictionary/dictSet/removeDictSetById',
             method: 'post',
             data: {
               id: item.id

@@ -106,7 +106,7 @@
   export default {
     mounted () {
       ajax({
-        url: '/dictionary/listDictSetOpt',
+        url: '/system/dictionary/dictSet/listDictSetOpt',
         method: 'get'
       }).then(value => {
         let result = value.data
@@ -154,7 +154,7 @@
           offset: this.tableData.pagesize
         })
         ajax({
-          url: '/dictionary/listDictValueByPage',
+          url: '/system/dictionary/dictValue/listDictValuePageData',
           method: 'get',
           params: this.query
         }).then(value => {
@@ -191,8 +191,11 @@
       },
       editItem (item) {
         ajax({
-          url: '/dictionary/getDictValueById?id=' + item.id,
-          method: 'get'
+          url: '/system/dictionary/dictValue/getDictValueById',
+          method: 'get',
+          params: {
+            id: item.id
+          }
         }).then(value => {
           let result = value.data
           if (result.success) {
@@ -221,7 +224,7 @@
       },
       saveItem () {
         ajax({
-          url: '/dictionary/saveDictValue',
+          url: '/system/dictionary/dictValue/saveDictValue',
           method: 'post',
           data: this.dialogModel.form
         }).then(value => {
@@ -244,7 +247,7 @@
           type: 'warning'
         }).then(() => {
           ajax({
-            url: '/dictionary/removeDictValueById',
+            url: '/system/dictionary/dictValue/removeDictValueById',
             method: 'post',
             data: {
               id: item.id
